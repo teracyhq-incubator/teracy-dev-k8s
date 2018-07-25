@@ -2,6 +2,7 @@
 
 Setting up k8s cluster on teracy-dev (v0.6) with kubespray.
 
+
 ## Requirements
 
 - Install the latest vagrant and virtualbox versions
@@ -22,22 +23,34 @@ $ git clone git@github.com:hoatle/teracy-dev-k8s.git
 ```
 
 
-- And then create `workspace/dev-setup/config_default.yaml` with the following content:
+- And then create `~/k8s-dev/workspace/dev-setup/config_default.yaml` with the following content:
 
 ```yaml
 vagrant:
-  extension_file_paths:
-    - workspace/teracy-dev-k8s/Vagrantfile-ext.rb
   config_file_paths:
     - workspace/teracy-dev-k8s/config_default.yaml
+  extension_file_paths:
+    - workspace/teracy-dev-k8s/Vagrantfile-ext.rb
 ```
 
 - Finally:
 
-```
+```bash
 $ cd ~/k8s-dev
 $ vagrant up
 ```
+
+
+When ansible is reported that everything is ok, check it:
+
+```bash
+$ cd ~/k8s-dev
+$ vagrant ssh
+$ kubectl cluster-info
+$ kubectl version
+$ kubectl get pods
+```
+
 
 ## Configuration Override
 
