@@ -116,7 +116,7 @@ module TeracyDevK8s
         @logger.debug("default_node: #{default_node}")
         @logger.debug("node: #{node}")
 
-        merged_node = TeracyDev::Util.override(k8sConfig['default_node'], node)
+        merged_node = TeracyDev::Util.override(default_node, node)
         nodes << merged_node
       end
       @logger.debug("nodes: #{nodes}")
