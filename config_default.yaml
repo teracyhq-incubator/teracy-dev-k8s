@@ -1,0 +1,72 @@
+
+# k8s config port from kubespray 
+k8s:
+  # configurable here
+  num_instances: 1
+  instance_name_prefix: "k8s"
+  vm_gui: false
+  vm_memory: 2048
+  vm_cpus: 1
+  subnet: 172.17.8
+  os: ubuntu
+  network_plugin: flannel
+  local_release_dir: /vagrant/temp
+
+  # don't try to change default_node if you don't know what you're going to do
+  # default_node template to be overriden
+  default_node:
+    _id:
+    name: 
+    vm:
+      box:
+      box_version:
+      box_url:
+      networks:
+        - _id: "0"
+          mode: private_network
+          ip:
+      synced_folders:
+        - _id: "0"
+          type: virtual_box
+          host: "."
+          guest: "/vagrant"
+        - _id: "1"
+          type: rsync
+          host: "./workspace"
+          guest: "/home/vagrant/workspace"
+          # can add exclude path from the `workspace` directory
+          # - a => exclude: `workspace/a`
+          rsync__exclude:
+            - .git
+            - .#*
+            - /kubespray/contrib/network-storage/glusterfs/group_vars
+    ssh:
+      insert_key: false
+      username:
+    providers:
+      - _id: "0"
+        enabled: true
+        type: virtualbox
+        require_version: ">=5.2.14"
+        gui:
+        memory:
+        cpus:
+        description: "k8s #{Time.now.getutc.to_i}"
+    provisioners:
+      - _id: "0"
+        type: shell
+        enabled: true
+        inline: swapoff -a
+      - _id: "1"
+        type: ansible_local
+        enabled: true
+        playbook: workspace/kubespray/cluster.yml
+        become: true
+        limit: all
+        raw_arguments:
+        host_vars: {}
+        verbose: v
+        install_mode: pip_args_only
+        pip_args: -r /vagrant/workspace/kubespray/requirements.txt
+        groups: {}
+
