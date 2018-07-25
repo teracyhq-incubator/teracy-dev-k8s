@@ -16,8 +16,9 @@ module TeracyDevK8s
     }
 
     def process(settings)
-
       k8sConfig = settings['k8s']
+
+      @logger.debug("k8sConfig: #{k8sConfig}")
 
       @num_instances = k8sConfig['num_instances']
       @instance_name_prefix = k8sConfig['instance_name_prefix']
@@ -116,8 +117,7 @@ module TeracyDevK8s
         @logger.debug("default_node: #{default_node}")
         @logger.debug("node: #{node}")
 
-        merged_node = TeracyDev::Util.override(default_node, node)
-        nodes << merged_node
+        nodes << TeracyDev::Util.override(default_node, node)
       end
       @logger.debug("nodes: #{nodes}")
       nodes
