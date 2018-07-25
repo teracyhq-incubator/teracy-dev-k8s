@@ -16,7 +16,6 @@ module TeracyDevK8s
     }
 
     def process(settings)
-      @logger.debug(settings)
 
       k8sConfig = settings['k8s']
 

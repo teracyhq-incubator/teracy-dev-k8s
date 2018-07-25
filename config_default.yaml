@@ -8,7 +8,7 @@ k8s:
   vm_memory: 2048
   vm_cpus: 1
   subnet: 172.17.8
-  os: ubuntu
+  os: ubuntu # coreos-stable | coreos-alpha | coreos-beta | centos | opensuse | opensuse-tumbleweed
   network_plugin: flannel
   local_release_dir: /vagrant/temp
 
@@ -69,4 +69,3 @@ k8s:
         install_mode: pip_args_only
         pip_args: -r /vagrant/workspace/kubespray/requirements.txt
         groups: {}
-
