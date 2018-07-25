@@ -1,3 +1,5 @@
+require 'fileutils'
+
 require 'teracy-dev/processors/processor'
 require 'teracy-dev/util'
 
