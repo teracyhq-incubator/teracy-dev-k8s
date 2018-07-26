@@ -26,11 +26,11 @@ $ git clone git@github.com:hoatle/teracy-dev-k8s.git
 - And then create `~/k8s-dev/workspace/dev-setup/config_default.yaml` with the following content:
 
 ```yaml
-vagrant:
-  config_file_paths:
-    - workspace/teracy-dev-k8s/config_default.yaml
-  extension_file_paths:
-    - workspace/teracy-dev-k8s/Vagrantfile-ext.rb
+teracy-dev:
+  extensions:
+    - path: workspace/teracy-dev-k8s
+      require_version: ">= 0.1.0-SNAPSHOT"
+      required: true
 ```
 
 - Finally:

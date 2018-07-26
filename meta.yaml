@@ -1,0 +1,3 @@
+name: teracy-dev-k8s
+version: "0.1.0-SNAPSHOT"
+description: k8s cluster setup on teracy-dev
