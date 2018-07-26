@@ -53,10 +53,11 @@ module TeracyDevK8s
 
     def inventory
       inventory = File.join(File.dirname(__FILE__), "../../../", "kubespray", "inventory", "sample")
-
+      @logger.debug("inventory: inventory: #{inventory}")
       vagrant_ansible = File.join(File.dirname(__FILE__), "../../../../", ".vagrant",
                            "provisioners", "ansible")
-      FileUtils.mkdir_p(vagrant_ansible) if ! File.exist?(vagrant_ansible)
+      @logger.debug("inventory: vagrant_ansible: #{vagrant_ansible}")
+      FileUtils.mkdir_p(vagrant_ansible) if !File.exist?(vagrant_ansible)
       if !File.exist?(File.join(vagrant_ansible, "inventory"))
         FileUtils.ln_s(inventory, File.join(vagrant_ansible, "inventory"))
       end
