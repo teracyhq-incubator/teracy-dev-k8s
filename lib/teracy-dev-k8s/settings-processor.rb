@@ -114,11 +114,11 @@ module TeracyDevK8s
           node["provisioners"] = [provisioner]
         end
 
-        default_node = k8sConfig['default_node']
-        @logger.debug("default_node: #{default_node}")
+        node_template = k8sConfig['node_template']
+        @logger.debug("node_template: #{node_template}")
         @logger.debug("node: #{node}")
 
-        nodes << TeracyDev::Util.override(default_node, node)
+        nodes << TeracyDev::Util.override(node_template, node)
       end
       @logger.debug("nodes: #{nodes}")
       nodes

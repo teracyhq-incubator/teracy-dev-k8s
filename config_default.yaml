@@ -13,8 +13,8 @@ k8s:
   local_release_dir: /vagrant/temp
 
   # don't try to change default_node if you don't know what you're going to do
-  # default_node template to be overriden
-  default_node:
+  # node template to be overriden
+  node_template:
     _id:
     name: 
     vm:
