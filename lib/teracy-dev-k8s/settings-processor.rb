@@ -39,10 +39,9 @@ module TeracyDevK8s
       @host_vars = {}
       @box = SUPPORTED_OS[@os][:box]
       if SUPPORTED_OS[@os].has_key? :box_url
-        @box_url = SUPPORTED_OS[$os][:box_url]
+        @box_url = SUPPORTED_OS[@os][:box_url]
       end
       inventory()
-
       # generate teracy-dev settings basing on k8s config
       nodes = generate_nodes(settings['k8s'])
 
