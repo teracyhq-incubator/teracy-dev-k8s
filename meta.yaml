@@ -1,4 +1,4 @@
 name: teracy-dev-k8s
 version: "0.1.0-SNAPSHOT"
 description: k8s cluster setup on teracy-dev (optional)
-require_version: ">= 0.6.0-a1-SNAPSHOT" # require version's version (optional)
+require_version: ">= 0.6.0-a1-SNAPSHOT" # require teracy's version (optional)
