@@ -14,12 +14,12 @@ Setting up k8s cluster on teracy-dev (v0.6) with kubespray.
 
 ```bash
 $ cd ~/
-$ git clone git@github.com:hoatle/teracy-dev.git k8s-dev
+$ git clone https://github.com/hoatle/teracy-dev.git k8s-dev
 $ cd k8s-dev
 $ git checkout tasks/v0.6.0
 $ cd workspace
 $ git clone https://github.com/kubernetes-incubator/kubespray.git
-$ git clone git@github.com:hoatle/teracy-dev-k8s.git
+$ git clone https://github.com/hoatle/teracy-dev-k8s.git
 ```
 
 
