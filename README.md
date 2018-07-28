@@ -23,7 +23,7 @@ $ git clone https://github.com/hoatle/teracy-dev-k8s.git
 ```
 
 
-- And then create `~/k8s-dev/workspace/dev-setup/config_default.yaml` with the following content:
+- And then create `~/k8s-dev/workspace/teracy-dev-entry/config_default.yaml` with the following content:
 
 ```yaml
 teracy-dev:
