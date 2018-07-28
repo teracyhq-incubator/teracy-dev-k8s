@@ -28,9 +28,11 @@ $ git clone https://github.com/hoatle/teracy-dev-k8s.git
 ```yaml
 teracy-dev:
   extensions:
-    - path: workspace/teracy-dev-k8s
+    - _id: "0"
+      path: workspace/teracy-dev-k8s
       require_version: ">= 0.1.0-SNAPSHOT"
       required: true
+      enabled: true
 ```
 
 - Finally:
