@@ -7,10 +7,12 @@ k8s:
   vm_gui: false
   vm_memory: 2048
   vm_cpus: 1
-  subnet: 172.17.8
   os: ubuntu # coreos-stable | coreos-alpha | coreos-beta | centos | opensuse | opensuse-tumbleweed
   network_plugin: flannel
   local_release_dir: /vagrant/temp
+  network:
+    mode: private_network # TODO: support "public_network" with automatic public ip of the master node so it's LAN accessible
+    subnet: 172.17.8
 
   # don't try to change default_node if you don't know what you're going to do
   # node template to be overriden
@@ -23,31 +25,13 @@ k8s:
       box_url:
       networks:
         - _id: "0"
-          mode: private_network
+          mode:
           ip:
-      synced_folders:
-        - _id: "0"
-          type: virtual_box
-          host: "."
-          guest: "/vagrant"
-        - _id: "1"
-          type: rsync
-          host: "./workspace"
-          guest: "/home/vagrant/workspace"
-          # can add exclude path from the `workspace` directory
-          # - a => exclude: `workspace/a`
-          rsync__exclude:
-            - .git
-            - .#*
-            - /kubespray/contrib/network-storage/glusterfs/group_vars
     ssh:
       insert_key: false
       username:
     providers:
       - _id: "0"
-        enabled: true
-        type: virtualbox
-        require_version: ">=5.2.14"
         gui:
         memory:
         cpus:

@@ -19,24 +19,25 @@ module TeracyDevK8s
       }
 
       def process(settings)
-        k8sConfig = settings['k8s']
+        k8s_config = settings['k8s']
 
-        @logger.debug("k8sConfig: #{k8sConfig}")
+        @logger.debug("k8s_config: #{k8s_config}")
 
-        @num_instances = k8sConfig['num_instances']
-        @instance_name_prefix = k8sConfig['instance_name_prefix']
-        @vm_gui = k8sConfig['vm_gui']
-        @vm_memory = k8sConfig['vm_memory']
-        @vm_cpus = k8sConfig['vm_cpus']
-        @subnet = k8sConfig['subnet']
-        @os = k8sConfig['os']
-        @network_plugin = k8sConfig['network_plugin']
+        @num_instances = k8s_config['num_instances']
+        @instance_name_prefix = k8s_config['instance_name_prefix']
+        @vm_gui = k8s_config['vm_gui']
+        @vm_memory = k8s_config['vm_memory']
+        @vm_cpus = k8s_config['vm_cpus']
+        @network_mode = k8s_config['network']['mode']
+        @subnet = k8s_config['network']['subnet']
+        @os = k8s_config['os']
+        @network_plugin = k8s_config['network_plugin']
         @etcd_instances = @num_instances
         # The first two nodes are kube masters
         @kube_master_instances = @num_instances == 1 ? @num_instances : (@num_instances - 1)
         # All nodes are kube nodes
         @kube_node_instances = @num_instances
-        @local_release_dir = k8sConfig['local_release_dir']
+        @local_release_dir = k8s_config['local_release_dir']
         @host_vars = {}
         @box = SUPPORTED_OS[@os][:box]
         if SUPPORTED_OS[@os].has_key? :box_url
@@ -45,9 +46,8 @@ module TeracyDevK8s
         inventory()
         # generate teracy-dev settings basing on k8s config
         nodes = generate_nodes(settings['k8s'])
-
-        settings["nodes"] = nodes
-        settings
+        # should override
+        TeracyDev::Util.override(settings, {"nodes" => nodes})
       end
 
       private
@@ -64,7 +64,7 @@ module TeracyDevK8s
         end
       end
 
-      def generate_nodes(k8sConfig)
+      def generate_nodes(k8s_config)
         nodes = []
 
         (1..@num_instances).each do |i|
@@ -86,6 +86,7 @@ module TeracyDevK8s
               "hostname" => "#{vm_name}", #.local
               "networks" => [{
                 "_id" => "0",
+                "mode" => @network_mode,
                 "ip" => ip
               }]
             },
@@ -116,7 +117,7 @@ module TeracyDevK8s
             node["provisioners"] = [provisioner]
           end
 
-          node_template = k8sConfig['node_template']
+          node_template = k8s_config['node_template']
           @logger.debug("node_template: #{node_template}")
           @logger.debug("node: #{node}")
 
