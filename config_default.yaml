@@ -1,4 +1,4 @@
-
+# TODO: support both ansible running from the host or from the guest machines
 # k8s config port from kubespray https://github.com/kubernetes-incubator/kubespray/blob/master/Vagrantfile#L26
 k8s:
   # configurable here
