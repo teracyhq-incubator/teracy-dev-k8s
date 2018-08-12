@@ -19,9 +19,10 @@ module TeracyDevK8s
       }
 
       def process(settings)
-        k8s_config = settings['k8s']
-
+        k8s_config = settings['teracy-dev-k8s']
         @logger.debug("k8s_config: #{k8s_config}")
+
+        sync_kubespray(k8s_config['kubespray'])
 
         @num_instances = k8s_config['num_instances']
         @instance_name_prefix = k8s_config['instance_name_prefix']
@@ -43,20 +44,42 @@ module TeracyDevK8s
         if SUPPORTED_OS[@os].has_key? :box_url
           @box_url = SUPPORTED_OS[@os][:box_url]
         end
-        inventory()
+        inventory(k8s_config['kubespray'])
         # generate teracy-dev settings basing on k8s config
-        nodes = generate_nodes(settings['k8s'])
+        nodes = generate_nodes(k8s_config)
         # should override
         TeracyDev::Util.override(settings, {"nodes" => nodes})
       end
 
       private
 
-      def inventory
-        inventory = File.join(File.dirname(__FILE__), "../../../../", "kubespray", "inventory", "sample")
+      def sync_kubespray(kubespray)
+        lookup_path = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'])
+        path = File.join(lookup_path, 'kubespray')
+        git = kubespray['location']['git']
+        branch = kubespray['location']['branch']
+        if File.exist? path
+          # TODO: need to sync when config changes
+        else
+          # clone it
+          Dir.chdir(lookup_path) do
+            @logger.info("cd #{lookup_path} && git clone #{git}")
+            system("git clone #{git}")
+            system("cd kuberspray && git checkout #{branch}")
+          end
+
+          Dir.chdir(path) do
+            @logger.info("cd #{path} && git checkout #{branch}")
+            system("git checkout #{branch}")
+          end
+        end
+      end
+
+      def inventory(kubespray)
+
+        inventory = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'], "kubespray", "inventory", "sample")
         @logger.debug("inventory: inventory: #{inventory}")
-        vagrant_ansible = File.join(File.dirname(__FILE__), "../../../../../", ".vagrant",
-                             "provisioners", "ansible")
+        vagrant_ansible = File.join(TeracyDev::BASE_DIR, ".vagrant", "provisioners", "ansible")
         @logger.debug("inventory: vagrant_ansible: #{vagrant_ansible}")
         FileUtils.mkdir_p(vagrant_ansible) if !File.exist?(vagrant_ansible)
         if !File.exist?(File.join(vagrant_ansible, "inventory"))
@@ -65,6 +88,7 @@ module TeracyDevK8s
       end
 
       def generate_nodes(k8s_config)
+        kubespray_lookup_path = k8s_config['kubespray']['lookup_path']
         nodes = []
 
         (1..@num_instances).each do |i|
@@ -105,6 +129,7 @@ module TeracyDevK8s
           if i == @num_instances
             provisioner = {
               "_id" => "1",
+              "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
               "raw_arguments" => ["--forks=#{@num_instances}", "--flush-cache"],
               "host_vars" => @host_vars,
               "groups" => {

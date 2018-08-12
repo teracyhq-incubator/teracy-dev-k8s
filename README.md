@@ -10,16 +10,13 @@ Setting up k8s cluster on teracy-dev (v0.6) with kubespray.
 
 ## How to use
 
-- Clone `teracy-dev`, `kubespray` and `teracy-dev-k8s` projects
+- Clone `teracy-dev` project:
 
 ```bash
 $ cd ~/
 $ git clone https://github.com/hoatle/teracy-dev.git k8s-dev
 $ cd k8s-dev
 $ git checkout tasks/v0.6.0
-$ cd workspace
-$ git clone https://github.com/kubernetes-incubator/kubespray.git
-$ git clone https://github.com/hoatle/teracy-dev-k8s.git
 ```
 
 
@@ -29,7 +26,11 @@ $ git clone https://github.com/hoatle/teracy-dev-k8s.git
 teracy-dev:
   extensions:
     - _id: "entry-0"
-      path: teracy-dev-k8s
+      path:
+        extension: teracy-dev-k8s
+      location:
+        git: https://github.com/hoatle/teracy-dev-k8s.git
+        branch: develop
       require_version: ">= 0.1.0-SNAPSHOT"
       enabled: true
 ```
@@ -40,7 +41,6 @@ teracy-dev:
 $ cd ~/k8s-dev
 $ vagrant up
 ```
-
 
 When ansible is reported that everything is ok, check it out:
 
@@ -73,14 +73,36 @@ You can retry with `$ vagrant reload --provision`
 
 ## Configuration Override
 
-To override default config, you need to create `workspace/teracy-dev-k8s/config_override.yaml` to
-override the values from `workspace/teracy-dev-k8s/config_default.yaml`.
+To override default config, you need to create `workspace/teracy-dev-entry/config_override.yaml` to
+override the values from `teracy-dev-k8s/config_default.yaml`.
 
 For example:
 
 ```yaml
-k8s:
+teracy-dev-k8s:
   num_instances: 2
+```
+
+
+## How to develop
+
+- To develop, we should checkout all the stuff into the `workspace` directory and use `git` instead of
+`https` protocol for git so that we can use `$ git push`
+
+- Configure as follows:
+
+```yaml
+teracy-dev:
+  extensions:
+    - _id: "entry-0"
+      path:
+        lookup: workspace
+        extension: teracy-dev-k8s
+      location:
+        git: git@github.com:hoatle/teracy-dev-k8s.git # your forked repo
+        branch: develop
+      require_version: ">= 0.1.0-SNAPSHOT"
+      enabled: true
 ```
 
 
