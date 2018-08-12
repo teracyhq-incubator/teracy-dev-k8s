@@ -1,5 +1,5 @@
 # TODO: support both ansible running from the host or from the guest machines
-# k8s config port from kubespray https://github.com/kubernetes-incubator/kubespray/blob/master/Vagrantfile#L26
+# k8s config backport from kubespray https://github.com/kubernetes-incubator/kubespray/blob/master/Vagrantfile#L26
 teracy-dev-k8s:
   # configurable here
   kubespray:
@@ -19,7 +19,7 @@ teracy-dev-k8s:
     mode: private_network # TODO: support "public_network" with automatic public ip of the master node so it's LAN accessible
     subnet: 172.17.8
 
-  # don't try to change default_node if you don't know what you're going to do
+  # don't try to change node_template if you don't know what you're going to do
   # node template to be overriden
   node_template:
     _id:
