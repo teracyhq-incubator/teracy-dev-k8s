@@ -71,11 +71,10 @@ visible above. Please fix these errors and try again.
 You can retry with `$ vagrant reload --provision`
 
 
-
 ## Ansible Options
 
-By default, we use the sample inventory, so you can configure ansible from the
-`kubespray/inventory/sample/group_vars` directory.
+By default, we copy the sample inventory from kubespray into `workspace/inventory` if not exists yet,
+so you can configure ansible from the `workspace/inventory` directory.
 
 
 ## Accessing Kubernetes API
@@ -88,7 +87,7 @@ You can append this config into the `~/.kube/config` file and use `kubectl` anyw
 the kubeconfig file:
 
 ```
-$ cd kubespray/inventory/sample/artifacts/
+$ cd workspace/inventory/artifacts/
 $ cat admin.conf > ~/.kube/config # append the generated admin config to the config file
 ```
 
@@ -109,14 +108,13 @@ For example:
 
 ```yaml
 teracy-dev-k8s:
-  num_instances: 2
+  num_instances: 3
 ```
 
 
 ## How to develop
 
-- To develop, we should checkout all the stuff into the `workspace` directory and use `git` instead of
-`https` protocol for git so that we can use `$ git push`
+Configure `workspace/teracy-dev-entry/config_override.yaml` with the follow similar content:
 
 - Configure as follows:
 
@@ -126,12 +124,8 @@ teracy-dev:
     - _id: "entry-0"
       path:
         lookup: workspace
-        extension: teracy-dev-k8s
       location:
         git: git@github.com:hoatle/teracy-dev-k8s.git # your forked repo
-        branch: develop
-      require_version: ">= 0.1.0-SNAPSHOT"
-      enabled: true
 ```
 
 

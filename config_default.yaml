@@ -1,9 +1,8 @@
-# TODO: support both ansible running from the host or from the guest machines
 # k8s config backport from kubespray https://github.com/kubernetes-incubator/kubespray/blob/master/Vagrantfile#L26
 teracy-dev-k8s:
   # configurable here
   kubespray:
-    lookup_path: workspace # relative to the Vagrantfile
+    lookup_path: extensions # relative to the Vagrantfile
     location:
       git: https://github.com/kubernetes-incubator/kubespray.git
       branch: v2.6.0
@@ -15,7 +14,7 @@ teracy-dev-k8s:
   vm_cpus: 1
   os: ubuntu # coreos-stable | coreos-alpha | coreos-beta | centos | opensuse | opensuse-tumbleweed
   network_plugin: flannel
-  local_release_dir: /vagrant/temp
+  local_release_dir: /tmp/release/
   network:
     mode: private_network # TODO: support "public_network" with automatic public ip of the master node so it's LAN accessible
     subnet: 172.17.8
@@ -43,12 +42,12 @@ teracy-dev-k8s:
         cpus:
         description: "k8s #{Time.now.getutc.to_i}"
     provisioners:
-      - _id: "0"
+      - _id: "k8s-0"
         type: shell
         enabled: true
         inline: swapoff -a
-      - _id: "1"
-        type: ansible_local
+      - _id: "k8s-1"
+        type:
         enabled: true
         playbook: workspace/kubespray/cluster.yml # TODO: use env var of kubespray.lookup_path
         become: true

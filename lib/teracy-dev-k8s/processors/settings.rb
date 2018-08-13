@@ -22,33 +22,8 @@ module TeracyDevK8s
         k8s_config = settings['teracy-dev-k8s']
         @logger.debug("k8s_config: #{k8s_config}")
 
-        sync_kubespray(k8s_config['kubespray'])
+        setup(k8s_config)
 
-        @num_instances = k8s_config['num_instances']
-        @instance_name_prefix = k8s_config['instance_name_prefix']
-        @vm_gui = k8s_config['vm_gui']
-        @vm_memory = k8s_config['vm_memory']
-        @vm_cpus = k8s_config['vm_cpus']
-        @network_mode = k8s_config['network']['mode']
-        @subnet = k8s_config['network']['subnet']
-        @os = k8s_config['os']
-        @network_plugin = k8s_config['network_plugin']
-        @etcd_instances = @num_instances
-        # The first two nodes are kube masters
-        @kube_master_instances = @num_instances == 1 ? @num_instances : (@num_instances - 1)
-        # All nodes are kube nodes
-        @kube_node_instances = @num_instances
-        @local_release_dir = k8s_config['local_release_dir']
-        @host_vars = {}
-        @box = SUPPORTED_OS[@os][:box]
-        if SUPPORTED_OS[@os].has_key? :box_url
-          @box_url = SUPPORTED_OS[@os][:box_url]
-        end
-
-        if k8s_config['ansible_mode'] == 'host'
-          setup_host(k8s_config)
-        end
-        # generate teracy-dev settings basing on k8s config
         nodes = generate_nodes(k8s_config)
         # should override
         TeracyDev::Util.override(settings, {"nodes" => nodes})
@@ -56,25 +31,24 @@ module TeracyDevK8s
 
       private
 
-      def setup_host(k8s_config)
-        # works with ansible type, not ansible_local type
-        # on ansible_local, the inventory is auto generated at: --inventory-file=/tmp/vagrant-ansible/inventory
-        inventory(k8s_config['kubespray'])
+      def setup(k8s_config)
+        sync_kubespray(k8s_config['kubespray'])
+        setup_inventory(k8s_config)
       end
+
 
       def sync_kubespray(kubespray)
         lookup_path = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'])
         path = File.join(lookup_path, 'kubespray')
         git = kubespray['location']['git']
         branch = kubespray['location']['branch']
+
         if File.exist? path
-          # TODO: need to sync when config changes
+          # TODO: need to check and sync the state here when required
         else
-          # clone it
           Dir.chdir(lookup_path) do
             @logger.info("cd #{lookup_path} && git clone #{git}")
             system("git clone #{git}")
-            system("cd kuberspray && git checkout #{branch}")
           end
 
           Dir.chdir(path) do
@@ -84,87 +58,137 @@ module TeracyDevK8s
         end
       end
 
-      def inventory(kubespray)
+      def setup_inventory(k8s_config)
+        kubespray = k8s_config['kubespray']
+        # copy the sample inventory to `workspace/inventory` if not exists yet and we can configure anything there
+        src_inventory = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'], "kubespray", "inventory", "sample", ".")
+        dest_inventory = File.join(TeracyDev::BASE_DIR, 'workspace', 'inventory')
+        if !File.exists? File.join(dest_inventory)
+          @logger.info("cp -r #{src_inventory} #{dest_inventory}")
+          FileUtils.mkdir_p dest_inventory
+          FileUtils.cp_r src_inventory, dest_inventory
+        end
 
-        inventory = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'], "kubespray", "inventory", "sample")
-        @logger.debug("inventory: inventory: #{inventory}")
-        vagrant_ansible = File.join(TeracyDev::BASE_DIR, ".vagrant", "provisioners", "ansible")
-        @logger.debug("inventory: vagrant_ansible: #{vagrant_ansible}")
-        FileUtils.mkdir_p(vagrant_ansible) if !File.exist?(vagrant_ansible)
-        if !File.exist?(File.join(vagrant_ansible, "inventory"))
-          FileUtils.ln_s(inventory, File.join(vagrant_ansible, "inventory"))
+        if k8s_config['ansible_mode'] == "host"
+          vagrant_ansible = File.join(TeracyDev::BASE_DIR, ".vagrant", "provisioners", "ansible")
+          FileUtils.mkdir_p(vagrant_ansible) if !File.exist?(vagrant_ansible)
+          if !File.exist?(File.join(vagrant_ansible, "inventory"))
+            FileUtils.ln_s(dest_inventory, File.join(vagrant_ansible, "inventory"))
+          end
         end
       end
 
       def generate_nodes(k8s_config)
+        num_instances = k8s_config['num_instances']
+        instance_name_prefix = k8s_config['instance_name_prefix']
+        vm_gui = k8s_config['vm_gui']
+        vm_memory = k8s_config['vm_memory']
+        vm_cpus = k8s_config['vm_cpus']
+        network_mode = k8s_config['network']['mode']
+        subnet = k8s_config['network']['subnet']
+        os = k8s_config['os']
+        network_plugin = k8s_config['network_plugin']
+        etcd_instances = num_instances
+        # The first two nodes are kube masters
+        kube_master_instances = num_instances == 1 ? num_instances : (num_instances - 1)
+        # All nodes are kube nodes
+        kube_node_instances = num_instances
+        local_release_dir = k8s_config['local_release_dir']
+        host_vars = {}
+        box = SUPPORTED_OS[os][:box]
+        if SUPPORTED_OS[os].has_key? :box_url
+          box_url = SUPPORTED_OS[os][:box_url]
+        end
         kubespray_lookup_path = k8s_config['kubespray']['lookup_path']
+        host_inventory = File.join(TeracyDev::BASE_DIR, 'workspace', 'inventory')
         nodes = []
 
-        (1..@num_instances).each do |i|
-          vm_name = "%s-%02d" % [@instance_name_prefix, i]
-          ip = "#{@subnet}.#{i+100}"
-          @host_vars[vm_name] = {
+        (1..num_instances).each do |i|
+          vm_name = "%s-%02d" % [instance_name_prefix, i]
+          ip = "#{subnet}.#{i+100}"
+          host_vars[vm_name] = {
             "ip": ip,
-            "bootstrap_os": SUPPORTED_OS[@os][:bootstrap_os],
-            "local_release_dir" => @local_release_dir,
+            "bootstrap_os": SUPPORTED_OS[os][:bootstrap_os],
+            "local_release_dir" => local_release_dir,
             "download_run_once": "False",
-            "kube_network_plugin": @network_plugin
+            "kube_network_plugin": network_plugin
           }
           node = {
             "_id" => "#{i-1}",
             "name" => vm_name,
             "vm" => {
-              "box" => @box,
-              "box_url" => @box_url,
+              "box" => box,
+              "box_url" => box_url,
               "hostname" => "#{vm_name}.local",
               "networks" => [{
                 "_id" => "0",
-                "mode" => @network_mode,
+                "mode" => network_mode,
                 "ip" => ip
               }]
             },
             "ssh" => {
-              "username" => SUPPORTED_OS[@os][:user]
+              "username" => SUPPORTED_OS[os][:user]
             },
             "providers" => [{
               "_id" => "0",
-              "gui" => @vm_gui,
-              "memory" => @vm_memory,
-              "cpus" => @vm_cpus
+              "gui" => vm_gui,
+              "memory" => vm_memory,
+              "cpus" => vm_cpus
             }]
           }
 
           # Only execute once the Ansible provisioner,
           # when all the machines are up and ready.
-          if i == @num_instances
-            provisioner = {
-              "_id" => "1",
-              "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
-              "raw_arguments" => ["--forks=#{@num_instances}", "--flush-cache"],
-              "host_vars" => @host_vars,
-              "groups" => {
-                "etcd" => ["#{@instance_name_prefix}-0[1:#{@etcd_instances}]"],
-                "kube-master" => ["#{@instance_name_prefix}-0[1:#{@kube_master_instances}]"],
-                "kube-node" => ["#{@instance_name_prefix}-0[1:#{@kube_node_instances}]"],
-                "k8s-cluster:children" => ["kube-master", "kube-node"],
-              }
-            }
-            node["provisioners"] = [provisioner]
+          if i == num_instances
 
             if k8s_config['ansible_mode'] == 'guest'
-            # map example inventory to /tmp/vagrant-ansible/inventory with the guest
+              provisioner = {
+                "_id" => "k8s-1",
+                "type" => "ansible_local",
+                "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
+                "host_vars" => host_vars,
+                "groups" => {
+                  "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
+                  "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
+                  "kube-node" => ["#{instance_name_prefix}-0[1:#{kube_node_instances}]"],
+                  "k8s-cluster:children" => ["kube-master", "kube-node"],
+                }
+              }
+              node["provisioners"] = [provisioner]
+              # map example inventory to /tmp/vagrant-ansible/inventory with the guest
               node['vm']['synced_folders'] = [{
                 "_id" => "k8s-0",
                 "type" => "virtual_box",
-                "host" => "#{kubespray_lookup_path}/kubespray/inventory/sample/",
+                "host" => "#{host_inventory}",
                 "guest" => "/tmp/vagrant-ansible/inventory/"
               }]
+            elsif k8s_config['ansible_mode'] == 'host'
+              provisioner = {
+                "_id" => "k8s-1",
+                "type" => "ansible",
+                "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "become" => true,
+                "lmit" => "all",
+                "host_key_checking" => false,
+                "raw_arguments" => ["--forks=#{$num_instances}", "--flush-cache"],
+                "host_vars" => host_vars,
+                "groups" => {
+                  "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
+                  "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
+                  "kube-node" => ["#{instance_name_prefix}-0[1:#{kube_node_instances}]"],
+                  "k8s-cluster:children" => ["kube-master", "kube-node"],
+                }
+              }
+              if File.exist?(File.join(host_inventory, "hosts"))
+                provisioner["inventory_path"] = host_inventory
+              end
+              node["provisioners"] = [provisioner]
             end
-
           end
 
           node_template = k8s_config['node_template']
-          @logger.debug("node_template: #{node_template}")
+          # @logger.debug("node_template: #{node_template}")
           @logger.debug("node: #{node}")
 
           nodes << TeracyDev::Util.override(node_template, node)
