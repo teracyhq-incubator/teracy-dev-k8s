@@ -81,7 +81,7 @@ so you can configure ansible from the `workspace/inventory` directory.
 
 See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
 
-You should see the generated artifacts within the `kubespray/inventory/sample/artifacts`
+You should see the generated artifacts within the `workspace/inventory/artifacts` directory
 
 You can append this config into the `~/.kube/config` file and use `kubectl` anywhere without specifying
 the kubeconfig file:
