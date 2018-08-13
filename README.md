@@ -71,6 +71,20 @@ visible above. Please fix these errors and try again.
 You can retry with `$ vagrant reload --provision`
 
 
+
+## Ansible Options
+
+By default, we use the sample inventory, so you can configure ansible from the
+`kubespray/inventory/sample/group_vars` directory.
+
+
+## Accessing Kubernetes API
+
+See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
+
+You should see the generated artifacts within the `kubespray/inventory/sample/artifacts`
+
+
 ## Configuration Override
 
 To override default config, you need to create `workspace/teracy-dev-entry/config_override.yaml` to

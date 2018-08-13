@@ -44,7 +44,10 @@ module TeracyDevK8s
         if SUPPORTED_OS[@os].has_key? :box_url
           @box_url = SUPPORTED_OS[@os][:box_url]
         end
-        inventory(k8s_config['kubespray'])
+
+        if k8s_config['ansible_mode'] == 'host'
+          setup_host(k8s_config)
+        end
         # generate teracy-dev settings basing on k8s config
         nodes = generate_nodes(k8s_config)
         # should override
@@ -52,6 +55,12 @@ module TeracyDevK8s
       end
 
       private
+
+      def setup_host(k8s_config)
+        # works with ansible type, not ansible_local type
+        # on ansible_local, the inventory is auto generated at: --inventory-file=/tmp/vagrant-ansible/inventory
+        inventory(k8s_config['kubespray'])
+      end
 
       def sync_kubespray(kubespray)
         lookup_path = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'])
@@ -107,7 +116,7 @@ module TeracyDevK8s
             "vm" => {
               "box" => @box,
               "box_url" => @box_url,
-              "hostname" => "#{vm_name}", #.local
+              "hostname" => "#{vm_name}.local",
               "networks" => [{
                 "_id" => "0",
                 "mode" => @network_mode,
@@ -124,6 +133,7 @@ module TeracyDevK8s
               "cpus" => @vm_cpus
             }]
           }
+
           # Only execute once the Ansible provisioner,
           # when all the machines are up and ready.
           if i == @num_instances
@@ -140,6 +150,17 @@ module TeracyDevK8s
               }
             }
             node["provisioners"] = [provisioner]
+
+            if k8s_config['ansible_mode'] == 'guest'
+            # map example inventory to /tmp/vagrant-ansible/inventory with the guest
+              node['vm']['synced_folders'] = [{
+                "_id" => "k8s-0",
+                "type" => "virtual_box",
+                "host" => "#{kubespray_lookup_path}/kubespray/inventory/sample/",
+                "guest" => "/tmp/vagrant-ansible/inventory/"
+              }]
+            end
+
           end
 
           node_template = k8s_config['node_template']
