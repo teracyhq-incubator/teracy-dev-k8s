@@ -19,8 +19,16 @@ module TeracyDevK8s
       }
 
       def process(settings)
+
         k8s_config = settings['teracy-dev-k8s']
         @logger.debug("k8s_config: #{k8s_config}")
+
+        # guest mode currently supports only 1 node
+        if k8s_config['ansible']['mode'] == 'guest' and k8s_config['num_instances'] > 1
+          @logger.error("ansible guest mode supports only 1 num_instances, you need to use 'host' mode instead")
+          @logger.error("and follow: https://github.com/kubernetes-incubator/kubespray#vagrant")
+          abort
+        end
 
         setup(k8s_config)
 
