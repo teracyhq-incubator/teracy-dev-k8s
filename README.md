@@ -42,7 +42,7 @@ $ cd ~/k8s-dev
 $ vagrant up
 ```
 
-When ansible is reported that everything is ok, check it out:
+When ansible reports that everything is ok, check it out:
 
 ```bash
 $ cd ~/k8s-dev
