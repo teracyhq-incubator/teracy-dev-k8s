@@ -6,7 +6,9 @@ teracy-dev-k8s:
     location:
       git: https://github.com/kubernetes-incubator/kubespray.git
       branch: v2.6.0
-  ansible_mode: guest # or host to run ansible from the host instead of from the guest
+  ansible:
+    verbose: v
+    mode: guest # or host to run ansible from the host instead of from the guest
   num_instances: 1
   instance_name_prefix: "k8s"
   vm_gui: false
@@ -46,15 +48,3 @@ teracy-dev-k8s:
         type: shell
         enabled: true
         inline: swapoff -a
-      - _id: "k8s-1"
-        type:
-        enabled: true
-        playbook: workspace/kubespray/cluster.yml # TODO: use env var of kubespray.lookup_path
-        become: true
-        limit: all
-        raw_arguments:
-        host_vars: {}
-        verbose: v
-        install_mode: pip_args_only
-        pip_args: -r /vagrant/workspace/kubespray/requirements.txt
-        groups: {}

@@ -108,7 +108,7 @@ For example:
 
 ```yaml
 teracy-dev-k8s:
-  num_instances: 3
+  num_instances: 3 # not working yet
 ```
 
 

@@ -25,6 +25,8 @@ module TeracyDevK8s
         setup(k8s_config)
 
         nodes = generate_nodes(k8s_config)
+        @logger.debug("nodes: #{nodes}")
+        #abort
         # should override
         TeracyDev::Util.override(settings, {"nodes" => nodes})
       end
@@ -35,7 +37,6 @@ module TeracyDevK8s
         sync_kubespray(k8s_config['kubespray'])
         setup_inventory(k8s_config)
       end
-
 
       def sync_kubespray(kubespray)
         lookup_path = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'])
@@ -69,7 +70,7 @@ module TeracyDevK8s
           FileUtils.cp_r src_inventory, dest_inventory
         end
 
-        if k8s_config['ansible_mode'] == "host"
+        if k8s_config['ansible']['mode'] == "host"
           vagrant_ansible = File.join(TeracyDev::BASE_DIR, ".vagrant", "provisioners", "ansible")
           FileUtils.mkdir_p(vagrant_ansible) if !File.exist?(vagrant_ansible)
           if !File.exist?(File.join(vagrant_ansible, "inventory"))
@@ -119,7 +120,7 @@ module TeracyDevK8s
             "vm" => {
               "box" => box,
               "box_url" => box_url,
-              "hostname" => "#{vm_name}.local",
+              "hostname" => "#{vm_name}",
               "networks" => [{
                 "_id" => "0",
                 "mode" => network_mode,
@@ -141,13 +142,19 @@ module TeracyDevK8s
           # when all the machines are up and ready.
           if i == num_instances
 
-            if k8s_config['ansible_mode'] == 'guest'
+            if k8s_config['ansible']['mode'] == 'guest'
               provisioner = {
                 "_id" => "k8s-1",
                 "type" => "ansible_local",
+                "enabled" => true,
                 "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "become" => true,
+                "limit" => "all",
                 "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
                 "host_vars" => host_vars,
+                "verbose" => k8s_config['ansible']['verbose'],
+                "install_mode" => "pip_args_only",
+                "pip_args" => "-r /vagrant/#{kubespray_lookup_path}/kubespray/requirements.txt",
                 "groups" => {
                   "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
                   "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
@@ -163,16 +170,18 @@ module TeracyDevK8s
                 "host" => "#{host_inventory}",
                 "guest" => "/tmp/vagrant-ansible/inventory/"
               }]
-            elsif k8s_config['ansible_mode'] == 'host'
+            elsif k8s_config['ansible']['mode'] == 'host'
               provisioner = {
                 "_id" => "k8s-1",
                 "type" => "ansible",
+                "enabled" => true,
                 "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
                 "become" => true,
-                "lmit" => "all",
+                "limit" => "all",
                 "host_key_checking" => false,
-                "raw_arguments" => ["--forks=#{$num_instances}", "--flush-cache"],
+                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
                 "host_vars" => host_vars,
+                "verbose" => k8s_config['ansible']['verbose'],
                 "groups" => {
                   "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
                   "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
@@ -189,11 +198,9 @@ module TeracyDevK8s
 
           node_template = k8s_config['node_template']
           # @logger.debug("node_template: #{node_template}")
-          @logger.debug("node: #{node}")
-
+          @logger.debug("generate_nodes: node: #{node}")
           nodes << TeracyDev::Util.override(node_template, node)
         end
-        @logger.debug("nodes: #{nodes}")
         nodes
       end
 
