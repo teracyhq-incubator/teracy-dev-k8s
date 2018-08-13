@@ -84,6 +84,21 @@ See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-
 
 You should see the generated artifacts within the `kubespray/inventory/sample/artifacts`
 
+You can append this config into the `~/.kube/config` file and use `kubectl` anywhere without specifying
+the kubeconfig file:
+
+```
+$ cd kubespray/inventory/sample/artifacts/
+$ cat admin.conf > ~/.kube/config # append the generated admin config to the config file
+```
+
+Use it:
+
+```
+$ kubectl config use-context admin-cluster.local
+$ kubectl cluster-info
+```
+
 
 ## Configuration Override
 
