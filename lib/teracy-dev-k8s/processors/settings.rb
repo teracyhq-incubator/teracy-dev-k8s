@@ -174,7 +174,7 @@ module TeracyDevK8s
               # map example inventory to /tmp/vagrant-ansible/inventory with the guest
               node['vm']['synced_folders'] = [{
                 "_id" => "k8s-0",
-                "type" => "virtual_box",
+                "type" => "virtualbox",
                 "host" => "#{host_inventory}",
                 "guest" => "/tmp/vagrant-ansible/inventory/"
               }]
