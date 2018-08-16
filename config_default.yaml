@@ -45,6 +45,7 @@ teracy-dev-k8s:
         description: "k8s #{Time.now.getutc.to_i}"
     provisioners:
       - _id: "k8s-0"
+        name: "swapoff"
         type: shell
         enabled: true
         inline: swapoff -a
