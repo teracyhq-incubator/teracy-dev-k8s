@@ -84,6 +84,13 @@ module TeracyDevK8s
           if !File.exist?(File.join(vagrant_ansible, "inventory"))
             FileUtils.ln_s(dest_inventory, File.join(vagrant_ansible, "inventory"))
           end
+          # delelete #{dest_inventory}/vagrant_ansible_local_inventory if generated on "guest" mode
+          guest_generated_file_path = File.join("#{dest_inventory}", "vagrant_ansible_local_inventory")
+          FileUtils.remove_file(guest_generated_file_path) if File.exist? guest_generated_file_path
+        elsif k8s_config['ansible']['mode'] == "guest"
+          # delelete #{dest_inventory}/vagrant_ansible_inventory if generated on "host" mode
+          host_generated_file_path = File.join("#{dest_inventory}", "vagrant_ansible_inventory")
+          FileUtils.remove_file(host_generated_file_path) if File.exist? host_generated_file_path
         end
       end
 
@@ -156,6 +163,7 @@ module TeracyDevK8s
                 "type" => "ansible_local",
                 "enabled" => true,
                 "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "config_file" => "#{kubespray_lookup_path}/kubespray/ansible.cfg",
                 "become" => true,
                 "limit" => "all",
                 "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
@@ -184,6 +192,7 @@ module TeracyDevK8s
                 "type" => "ansible",
                 "enabled" => true,
                 "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "config_file" => "#{kubespray_lookup_path}/kubespray/ansible.cfg",
                 "become" => true,
                 "limit" => "all",
                 "host_key_checking" => false,

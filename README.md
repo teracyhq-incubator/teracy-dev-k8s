@@ -108,7 +108,12 @@ For example:
 
 ```yaml
 teracy-dev-k8s:
-  num_instances: 3 # not working yet
+  ansible:
+    mode: host
+    verbose: vvv
+  vm_memory: 1300
+  vm_cpus: 4
+  num_instances: 3
 ```
 
 
