@@ -37,8 +37,8 @@ For example:
 teracy-dev-k8s:
   ansible:
     mode: host
-    verbose: vvv
-  vm_memory: 1300
+    verbose: vv
+  vm_memory: 1600
   vm_cpus: 4
   num_instances: 3
 ```
