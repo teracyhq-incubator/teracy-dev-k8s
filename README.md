@@ -6,7 +6,7 @@ Setting up k8s cluster on teracy-dev (v0.6) with kubespray.
 ## Requirements
 
 - Install the latest vagrant and virtualbox versions
-- Use with teracy-dev v0.6
+- Use teracy-dev v0.6
 
 ## How to use
 
@@ -14,9 +14,9 @@ Setting up k8s cluster on teracy-dev (v0.6) with kubespray.
 
 ```bash
 $ cd ~/
-$ git clone https://github.com/hoatle/teracy-dev.git k8s-dev
+$ git clone https://github.com/teracyhq/dev.git k8s-dev
 $ cd k8s-dev
-$ git checkout tasks/v0.6.0
+$ git checkout develop
 ```
 
 
