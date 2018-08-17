@@ -26,6 +26,12 @@ teracy-dev:
 See this example setup: https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
 
 
+## Ansible Options
+
+By default, we copy the sample inventory from kubespray into `workspace/inventory` if not exists yet,
+so you can configure ansible from the `workspace/inventory` directory.
+
+
 ## Configuration Override
 
 To override default config, you need to create `workspace/teracy-dev-entry/config_override.yaml` to
