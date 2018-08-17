@@ -12,7 +12,7 @@ Configure `workspace/teracy-dev-entry/config_default.yaml` with the following si
 ```yaml
 teracy-dev:
   extensions:
-    - _id: "entry-0"
+    - _id: "entry-0" # this _id is used for overriding by the config_override.yaml file
       path:
         extension: teracy-dev-k8s
       location:
@@ -79,14 +79,14 @@ teracy-dev-k8s:
 
 ## How to develop
 
-Configure `workspace/teracy-dev-entry/config_override.yaml` with the follow similar content:
+Configure `workspace/teracy-dev-entry/config_override.yaml` with the following similar content:
 
 - Configure as follows:
 
 ```yaml
 teracy-dev:
   extensions:
-    - _id: "entry-0"
+    - _id: "entry-0" # make sure the right _id matching from the config_default.yaml file
       path:
         lookup: workspace
       location:
