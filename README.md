@@ -32,6 +32,33 @@ By default, we copy the sample inventory from kubespray into `workspace/inventor
 so you can configure ansible from the `workspace/inventory` directory.
 
 
+## Accessing Kubernetes API
+
+See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
+
+You should see the generated artifacts within the `workspace/inventory/artifacts` directory
+
+You can set the `KUBECONFIG` env var for `kubectl` to work:
+
+```
+export KUBECONFIG=~/k8s-dev/workspace/inventory/artifacts/admin.conf
+```
+
+Or you can append this config into the `~/.kube/config` file:
+
+```
+$ cd workspace/inventory/artifacts/
+$ cat admin.conf > ~/.kube/config # append the generated admin config to the config file
+```
+
+Use it:
+
+```
+$ kubectl config use-context admin-cluster.local
+$ kubectl cluster-info
+```
+
+
 ## Configuration Override
 
 To override default config, you need to create `workspace/teracy-dev-entry/config_override.yaml` to
