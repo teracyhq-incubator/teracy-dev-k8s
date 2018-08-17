@@ -29,7 +29,7 @@ teracy-dev:
       path:
         extension: teracy-dev-k8s
       location:
-        git: https://github.com/hoatle/teracy-dev-k8s.git
+        git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
         branch: develop
       require_version: ">= 0.1.0-SNAPSHOT"
       enabled: true
