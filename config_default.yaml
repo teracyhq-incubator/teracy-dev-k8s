@@ -9,6 +9,7 @@ teracy-dev-k8s:
   ansible:
     verbose: v
     mode: guest # or host to run ansible from the host instead of from the guest
+    playbook_path: cluster.yml # relative within the kubespray repo or /cluster.yml is relative to the Vagrantfile when appending / at the beginning as convention
   num_instances: 1
   instance_name_prefix: "k8s"
   vm_gui: false
