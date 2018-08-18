@@ -118,6 +118,13 @@ module TeracyDevK8s
         kubespray_lookup_path = k8s_config['kubespray']['lookup_path']
         host_inventory = File.join(TeracyDev::BASE_DIR, 'workspace', 'inventory')
         nodes = []
+        playbook_path = k8s_config['ansible']['playbook_path']
+        if playbook_path.start_with? "/"
+          playbook_path = File.join(TeracyDev::BASE_DIR, playbook_path)
+        else
+          playbook_path = File.join(kubespray_lookup_path, 'kubespray', playbook_path)
+        end
+        @logger.debug("playbook_path: #{playbook_path}")
 
         (1..num_instances).each do |i|
           vm_name = "%s-%02d" % [instance_name_prefix, i]
@@ -162,7 +169,7 @@ module TeracyDevK8s
                 "_id" => "k8s-1",
                 "type" => "ansible_local",
                 "enabled" => true,
-                "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "playbook" => "#{playbook_path}",
                 "config_file" => "#{kubespray_lookup_path}/kubespray/ansible.cfg",
                 "become" => true,
                 "limit" => "all",
@@ -191,7 +198,7 @@ module TeracyDevK8s
                 "_id" => "k8s-1",
                 "type" => "ansible",
                 "enabled" => true,
-                "playbook" => "#{kubespray_lookup_path}/kubespray/cluster.yml",
+                "playbook" => "#{playbook_path}",
                 "config_file" => "#{kubespray_lookup_path}/kubespray/ansible.cfg",
                 "become" => true,
                 "limit" => "all",
