@@ -34,8 +34,6 @@ so you can configure ansible from the `workspace/inventory` directory.
 
 ## Accessing Kubernetes API
 
-See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
-
 You should see the generated artifacts within the `workspace/inventory/artifacts` directory
 
 You can set the `KUBECONFIG` env var for `kubectl` to work:

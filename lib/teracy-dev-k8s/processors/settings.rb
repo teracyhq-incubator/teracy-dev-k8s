@@ -109,6 +109,7 @@ module TeracyDevK8s
         kube_master_instances = num_instances == 1 ? num_instances : (num_instances - 1)
         # All nodes are kube nodes
         kube_node_instances = num_instances
+        ansible_host_vars = k8s_config['ansible']['host_vars']
         local_release_dir = k8s_config['local_release_dir']
         host_vars = {}
         box = SUPPORTED_OS[os][:box]
@@ -131,11 +132,12 @@ module TeracyDevK8s
           ip = "#{subnet}.#{i+100}"
           host_vars[vm_name] = {
             "ip": ip,
-            "bootstrap_os": SUPPORTED_OS[os][:bootstrap_os],
-            "local_release_dir" => local_release_dir,
-            "download_run_once": "False",
-            "kube_network_plugin": network_plugin
+            "bootstrap_os": SUPPORTED_OS[os][:bootstrap_os]
           }
+
+          host_vars[vm_name].merge!(ansible_host_vars)
+          @logger.debug("host_vars[#{vm_name}]: #{host_vars[vm_name]}")
+
           node = {
             "_id" => "#{i-1}",
             "name" => vm_name,

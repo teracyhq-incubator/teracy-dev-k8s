@@ -10,14 +10,19 @@ teracy-dev-k8s:
     verbose: v
     mode: guest # or host to run ansible from the host instead of from the guest
     playbook_path: cluster.yml # relative within the kubespray repo or /cluster.yml is relative to the Vagrantfile when appending / at the beginning as convention
+    # you can add any host_vars here with key-value to override inventory
+    host_vars:
+        local_release_dir: /tmp/release/
+        kube_network_plugin: flannel
+        download_run_once: "False"
+        kubeconfig_localhost: true
+
   num_instances: 1
   instance_name_prefix: "k8s"
   vm_gui: false
   vm_memory: 2048
   vm_cpus: 1
   os: ubuntu # coreos-stable | coreos-alpha | coreos-beta | centos | opensuse | opensuse-tumbleweed
-  network_plugin: flannel
-  local_release_dir: /tmp/release/
   network:
     mode: private_network # TODO: support "public_network" with automatic public ip of the master node so it's LAN accessible
     subnet: 172.17.8
@@ -26,7 +31,7 @@ teracy-dev-k8s:
   # node template to be overriden
   node_template:
     _id:
-    name: 
+    name:
     vm:
       box:
       box_version:
