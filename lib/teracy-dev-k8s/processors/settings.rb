@@ -1,7 +1,9 @@
 require 'fileutils'
 
+require 'teracy-dev'
 require 'teracy-dev/processors/processor'
 require 'teracy-dev/util'
+require 'teracy-dev/location'
 
 module TeracyDevK8s
   module Processors
@@ -47,24 +49,14 @@ module TeracyDevK8s
       end
 
       def sync_kubespray(kubespray)
-        lookup_path = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'])
+        lookup_path = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'] ||= TeracyDev::DEFAULT_EXTENSION_LOOKUP_PATH)
         path = File.join(lookup_path, 'kubespray')
-        git = kubespray['location']['git']
-        branch = kubespray['location']['branch']
-
-        if File.exist? path
-          # TODO: need to check and sync the state here when required
-        else
-          Dir.chdir(lookup_path) do
-            @logger.info("cd #{lookup_path} && git clone #{git}")
-            system("git clone #{git}")
-          end
-
-          Dir.chdir(path) do
-            @logger.info("cd #{path} && git checkout #{branch}")
-            system("git checkout #{branch}")
-          end
-        end
+        kubespray['location'].merge!({
+          "lookup_path" => lookup_path,
+          "path" => path
+        })
+        sync_existing = kubespray['lookup_path'] == TeracyDev::DEFAULT_EXTENSION_LOOKUP_PATH
+        TeracyDev::Location.sync(kubespray['location'], sync_existing)
       end
 
       def setup_inventory(k8s_config)
