@@ -25,6 +25,19 @@ teracy-dev:
 
 See this example setup: https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
 
+## Vagrant Reload
+
+Whenever the node(s) is reloaded, make sure to provision it so that the k8s cluster is working properly
+
+```
+$ vagrant halt
+$ vagrant up --provision
+```
+
+```
+$ vagrant reload --provision
+```
+
 
 ## Ansible Options
 
