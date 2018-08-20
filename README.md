@@ -70,14 +70,13 @@ And then set the `KUBECONFIG` env var for `kubectl` to work:
 ```
 $ cd workspace/inventory/artifacts
 $ export KUBECONFIG=$(pwd)/admin.conf
+$ # or if you want to use existing config
+$ export KUBECONFIG=$KUBE_CONFIG:$(pwd)/admin.conf
+$ # or
+$ export KUBECONFIG=$HOME/.kube/config:$(pwd)/admin.conf
 ```
 
-Or you can append this config into the `~/.kube/config` file:
-
-```
-$ cd workspace/inventory/artifacts/
-$ cat admin.conf > ~/.kube/config # append the generated admin config to the config file
-```
+You can adjust the above script for `~/.bash_profile` so that it's loaded everytime a terminal session is started.
 
 Use it:
 
@@ -86,7 +85,9 @@ $ kubectl config use-context admin-cluster.local
 $ kubectl cluster-info
 ```
 
-See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
+See:
+- https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
+- https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/
 
 ## Configuration Override
 
