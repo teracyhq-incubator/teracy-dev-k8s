@@ -44,15 +44,32 @@ $ vagrant reload --provision
 By default, we copy the sample inventory from kubespray into `workspace/inventory` if not exists yet,
 so you can configure ansible from the `workspace/inventory` directory.
 
+Moreover, you can also override inventory options with `teracy-dev-k8s['ansible']['host_vars']`,
+see the configuration override section below
+
 
 ## Accessing Kubernetes API
 
 You should see the generated artifacts within the `workspace/inventory/artifacts` directory
 
-You can set the `KUBECONFIG` env var for `kubectl` to work:
+By default, the `admin.conf`, `kubectl` and `kubectl.sh` files are generated.
+
+You can use:
 
 ```
-export KUBECONFIG=~/k8s-dev/workspace/inventory/artifacts/admin.conf
+$ cd workspace/inventory/artifacts
+$ ./kubectl.sh cluster-info
+```
+
+You can copy the `kubectl` file to your local bin (`/usr/local/bin/`) or better to install it
+yourself with autocomplete.
+
+
+And then set the `KUBECONFIG` env var for `kubectl` to work:
+
+```
+$ cd workspace/inventory/artifacts
+$ export KUBECONFIG=$(pwd)/admin.conf
 ```
 
 Or you can append this config into the `~/.kube/config` file:
@@ -69,6 +86,7 @@ $ kubectl config use-context admin-cluster.local
 $ kubectl cluster-info
 ```
 
+See: https://github.com/kubernetes-incubator/kubespray/blob/master/docs/getting-started.md#accessing-kubernetes-api
 
 ## Configuration Override
 
@@ -82,6 +100,9 @@ teracy-dev-k8s:
   ansible:
     mode: host
     verbose: vv
+    host_vars:
+      kubectl_localhost: false
+      helm_enabled: true
   vm_memory: 1600
   vm_cpus: 4
   num_instances: 3
