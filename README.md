@@ -2,7 +2,7 @@
 
 Setting up k8s cluster on teracy-dev (v0.6) with kubespray for a production ready local k8s cluster.
 This can be considered a local managed k8s service that we can use it for testing, it should work
-the same as any k8s cluster in the cloud.
+the same way as any k8s cluster in the cloud.
 
 
 ## How to use
