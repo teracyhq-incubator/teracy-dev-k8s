@@ -3,7 +3,7 @@ require 'fileutils'
 require 'teracy-dev'
 require 'teracy-dev/processors/processor'
 require 'teracy-dev/util'
-require 'teracy-dev/location'
+require 'teracy-dev/location/manager'
 
 module TeracyDevK8s
   module Processors
@@ -56,7 +56,7 @@ module TeracyDevK8s
           "path" => path
         })
         sync_existing = kubespray['lookup_path'] == TeracyDev::DEFAULT_EXTENSION_LOOKUP_PATH
-        TeracyDev::Location.sync(kubespray['location'], sync_existing)
+        TeracyDev::Location::Manager.sync(kubespray['location'], sync_existing)
       end
 
       def setup_inventory(k8s_config)
