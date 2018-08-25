@@ -9,6 +9,39 @@ the same way as any k8s cluster in the cloud.
 
 Configure `workspace/teracy-dev-entry/config_default.yaml` with the following similar content:
 
+- Use specific version:
+
+```yaml
+teracy-dev:
+  extensions:
+    - _id: "entry-0" # this _id is used for overriding by the config_override.yaml file
+      path:
+        extension: teracy-dev-k8s
+      location:
+        git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
+        branch: v0.1.0
+      require_version: ">= 0.1.0, < 0.2.0"
+      enabled: true
+```
+
+- Use latest stable version (auto update):
+
+```yaml
+teracy-dev:
+  extensions:
+    - _id: "entry-0" # this _id is used for overriding by the config_override.yaml file
+      path:
+        extension: teracy-dev-k8s
+      location:
+        git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
+        branch: master
+      require_version: ">= 0.1.0, < 0.2.0"
+      enabled: true
+```
+
+
+- Use latest develop version (auto update):
+
 ```yaml
 teracy-dev:
   extensions:
@@ -18,7 +51,7 @@ teracy-dev:
       location:
         git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
         branch: develop
-      require_version: ">= 0.1.0-SNAPSHOT"
+      require_version: ">= 0.1.0, < 0.2.0"
       enabled: true
 ```
 
@@ -124,6 +157,7 @@ teracy-dev:
         lookup: workspace
       location:
         git: git@github.com:hoatle/teracy-dev-k8s.git # your forked repo
+        branch: develop
 ```
 
 
