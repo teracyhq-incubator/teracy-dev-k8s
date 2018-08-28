@@ -92,7 +92,7 @@ module TeracyDevK8s
         vm_gui = k8s_config['vm_gui']
         vm_memory = k8s_config['vm_memory']
         vm_cpus = k8s_config['vm_cpus']
-        network_mode = k8s_config['network']['mode']
+        network_type = k8s_config['network']['type']
         subnet = k8s_config['network']['subnet']
         os = k8s_config['os']
         network_plugin = k8s_config['network_plugin']
@@ -139,7 +139,7 @@ module TeracyDevK8s
               "hostname" => "#{vm_name}",
               "networks" => [{
                 "_id" => "0",
-                "mode" => network_mode,
+                "type" => network_type,
                 "ip" => ip
               }]
             },
