@@ -147,7 +147,6 @@ teracy-dev-k8s:
 
 Configure `workspace/teracy-dev-entry/config_override.yaml` with the following similar content:
 
-- Configure as follows:
 
 ```yaml
 teracy-dev:
