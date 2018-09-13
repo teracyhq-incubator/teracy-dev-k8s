@@ -1,4 +1,4 @@
 name: teracy-dev-k8s
 version: "0.2.0-SNAPSHOT"
 description: k8s cluster setup on teracy-dev
-target: ">= 0.6.0-a2, < 0.7.0"
+target: ">= 0.6.0-a3, < 0.7.0"
