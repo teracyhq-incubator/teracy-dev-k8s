@@ -64,7 +64,7 @@ module TeracyDevK8s
         # copy the sample inventory to `workspace/inventory` if not exists yet and we can configure anything there
         src_inventory = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'], "kubespray", "inventory", "sample", ".")
         dest_inventory = File.join(TeracyDev::BASE_DIR, 'workspace', 'inventory')
-        if !File.exists? File.join(dest_inventory)
+        if !File.exist? File.join(dest_inventory)
           @logger.info("cp -r #{src_inventory} #{dest_inventory}")
           FileUtils.mkdir_p dest_inventory
           FileUtils.cp_r src_inventory, dest_inventory
@@ -72,17 +72,17 @@ module TeracyDevK8s
 
         if k8s_config['ansible']['mode'] == "host"
           vagrant_ansible = File.join(TeracyDev::BASE_DIR, ".vagrant", "provisioners", "ansible")
-          FileUtils.mkdir_p(vagrant_ansible) if !File.exist?(vagrant_ansible)
-          if !File.exist?(File.join(vagrant_ansible, "inventory"))
+          FileUtils.mkdir_p(vagrant_ansible) if !File.exist? vagrant_ansible
+          if !File.exist? File.join(vagrant_ansible, "inventory")
             FileUtils.ln_s(dest_inventory, File.join(vagrant_ansible, "inventory"))
           end
           # delelete #{dest_inventory}/vagrant_ansible_local_inventory if generated on "guest" mode
           guest_generated_file_path = File.join("#{dest_inventory}", "vagrant_ansible_local_inventory")
-          FileUtils.remove_file(guest_generated_file_path) if File.exist? guest_generated_file_path
+          FileUtils.remove_file(guest_generated_file_path) if File.file? guest_generated_file_path
         elsif k8s_config['ansible']['mode'] == "guest"
           # delelete #{dest_inventory}/vagrant_ansible_inventory if generated on "host" mode
           host_generated_file_path = File.join("#{dest_inventory}", "vagrant_ansible_inventory")
-          FileUtils.remove_file(host_generated_file_path) if File.exist? host_generated_file_path
+          FileUtils.remove_file(host_generated_file_path) if File.file? host_generated_file_path
         end
       end
 
@@ -187,6 +187,11 @@ module TeracyDevK8s
                 "host" => "#{host_inventory}",
                 "guest" => "/tmp/vagrant-ansible/inventory/"
               }]
+              # bug on vagrant 2.1.5
+              # see: https://github.com/teracyhq-incubator/teracy-dev-k8s/issues/26#issuecomment-426205878
+              if Gem::Version.new(Vagrant::VERSION) == Gem::Version.new('2.1.5')
+                node['vm']['synced_folders'][0]['guest'] = "/tmp/vagrant-ansible/inventory/vagrant_ansible_local_inventory/"
+              end
             elsif k8s_config['ansible']['mode'] == 'host'
               provisioner = {
                 "_id" => "k8s-1",
