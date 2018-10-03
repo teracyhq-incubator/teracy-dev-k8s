@@ -15,8 +15,8 @@ teracy-dev-k8s:
       local_release_dir: /tmp/release/
       kube_network_plugin: flannel
       download_run_once: "False"
-      kubeconfig_localhost: true
-      kubectl_localhost: true
+      kubeconfig_localhost: "True"
+      kubectl_localhost: "True"
 
   num_instances: 1
   instance_name_prefix: "k8s"

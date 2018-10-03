@@ -125,7 +125,7 @@ See:
 ## Configuration Override
 
 To override default config, you need to create `workspace/teracy-dev-entry/config_override.yaml` to
-override the values from `teracy-dev-k8s/config_default.yaml`.
+override the values from `teracy-dev-k8s/config.yaml`.
 
 For example:
 
@@ -135,8 +135,8 @@ teracy-dev-k8s:
     mode: host
     verbose: vv
     host_vars:
-      kubectl_localhost: false
-      helm_enabled: true
+      kubectl_localhost: "False"
+      helm_enabled: "True"
   vm_memory: 1600
   vm_cpus: 4
   num_instances: 3
