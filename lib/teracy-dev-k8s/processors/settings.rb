@@ -14,7 +14,7 @@ module TeracyDevK8s
         "coreos-stable" => {box: "coreos-stable",      bootstrap_os: "coreos", user: "core", box_url: COREOS_URL_TEMPLATE % ["stable"]},
         "coreos-alpha"  => {box: "coreos-alpha",       bootstrap_os: "coreos", user: "core", box_url: COREOS_URL_TEMPLATE % ["alpha"]},
         "coreos-beta"   => {box: "coreos-beta",        bootstrap_os: "coreos", user: "core", box_url: COREOS_URL_TEMPLATE % ["beta"]},
-        "ubuntu"        => {box: "bento/ubuntu-16.04", bootstrap_os: "ubuntu", user: "vagrant"},
+        "ubuntu"        => {box: "bento/ubuntu-18.04", bootstrap_os: "ubuntu", user: "vagrant"},
         "centos"        => {box: "centos/7",           bootstrap_os: "centos", user: "vagrant"},
         "opensuse"      => {box: "opensuse/openSUSE-42.3-x86_64", bootstrap_os: "opensuse", use: "vagrant"},
         "opensuse-tumbleweed" => {box: "opensuse/openSUSE-Tumbleweed-x86_64", bootstrap_os: "opensuse", use: "vagrant"},
@@ -44,8 +44,8 @@ module TeracyDevK8s
       private
 
       def setup(k8s_config)
-        sync_kubespray(k8s_config['kubespray'])
-        setup_inventory(k8s_config)
+        updated = sync_kubespray(k8s_config['kubespray'])
+        setup_inventory(k8s_config, updated)
       end
 
       def sync_kubespray(kubespray)
@@ -56,16 +56,20 @@ module TeracyDevK8s
           "path" => path
         })
         sync_existing = kubespray['lookup_path'] == TeracyDev::DEFAULT_EXTENSION_LOOKUP_PATH
-        TeracyDev::Location::Manager.sync(kubespray['location'], sync_existing)
+        return TeracyDev::Location::Manager.sync(kubespray['location'], sync_existing)
       end
 
-      def setup_inventory(k8s_config)
+      def setup_inventory(k8s_config, clean_inventory)
+        @logger.debug("clean_inventory: #{clean_inventory}")
         kubespray = k8s_config['kubespray']
         # copy the sample inventory to `workspace/inventory` if not exists yet and we can configure anything there
         src_inventory = File.join(TeracyDev::BASE_DIR, kubespray['lookup_path'], "kubespray", "inventory", "sample", ".")
         dest_inventory = File.join(TeracyDev::BASE_DIR, 'workspace', 'inventory')
+        # delete the dest_inventory if exist and require cleaning
+        FileUtils.remove_dir dest_inventory if File.directory? dest_inventory and clean_inventory == true
+
         if !File.exist? File.join(dest_inventory)
-          @logger.info("cp -r #{src_inventory} #{dest_inventory}")
+          @logger.info("mkdir -p #{dest_inventory} && cp -r #{src_inventory} #{dest_inventory}")
           FileUtils.mkdir_p dest_inventory
           FileUtils.cp_r src_inventory, dest_inventory
         end
