@@ -19,8 +19,8 @@ teracy-dev:
         extension: teracy-dev-k8s
       location:
         git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
-        branch: v0.1.0
-      require_version: ">= 0.1.0, < 0.2.0"
+        branch: v0.2.0
+      require_version: ">= 0.2.0, < 0.3.0"
       enabled: true
 ```
 
@@ -35,7 +35,7 @@ teracy-dev:
       location:
         git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
         branch: master
-      require_version: ">= 0.1.0, < 0.2.0"
+      require_version: ">= 0.2.0, < 0.3.0"
       enabled: true
 ```
 
@@ -51,7 +51,7 @@ teracy-dev:
       location:
         git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
         branch: develop
-      require_version: ">= 0.2.0-SNAPSHOT"
+      require_version: ">= 0.3.0-SNAPSHOT"
       enabled: true
 ```
 
@@ -157,7 +157,7 @@ teracy-dev:
       location:
         git: git@github.com:hoatle/teracy-dev-k8s.git # your forked repo
         branch: develop
-      require_version: ">= 0.2.0-SNAPSHOT"
+      require_version: ">= 0.3.0-SNAPSHOT"
 ```
 
 
