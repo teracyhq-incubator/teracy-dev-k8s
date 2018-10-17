@@ -1,7 +1,7 @@
 # SSO (Single Sign On with Kubernetes)
 
 This guide will help you to set up SSO for k8s. You should set up a local k8s to test this on local
-by following https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
+by following: https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
 
 We're going to use Dex as a OIDC provider for k8s authentication, you can use any other OIDC providers
 with the similar deployment steps.
@@ -10,7 +10,7 @@ with the similar deployment steps.
 ## Domain Aliases
 
 We're going to deploy dex (auth.k8s.local) and dex-k8s-authenticator (login.k8s.local) helm charts,
-so make sure to configure these domain aliases (see https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#domain-aliases)
+so make sure to configure these domain aliases (see https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#domain-aliases).
 
 
 ## auth.k8s.local Dex Deployment
@@ -165,7 +165,8 @@ $ kubectl create namespace dex # if dex namespace not created yet
 $ helm upgrade --install --namespace dex dex stable/dex -f dex.yaml
 ```
 
-After that, `https://auth.k8s.local/.well-known/openid-configuration` should display info such as:
+After that, `https://auth.k8s.local/.well-known/openid-configuration` should display info like the
+following content:
 
 ```
 {
@@ -208,12 +209,14 @@ After that, `https://auth.k8s.local/.well-known/openid-configuration` should dis
 
 `$ kubectl -n dex get configmaps dex-web-server-ca -o yaml` to see the dex CA root certifcate that
 the k8s api server must trust and the dex client apps must trust when the self-signed certificate is
-used for the dex deployment. Create `sso/dex-ca.pem` file from the config map data above.
+used for the dex deployment. Create the `sso/dex-ca.pem` file from the config map data above.
 
 
 ## Configure the k8s api server
 
-Set the ansible config, through the `workspace/inventory/group_vars/k8s-cluster/k8s-cluster.yaml` or though the teracy-dev-k8s host_vars config:
+Set the ansible config, through the `workspace/inventory/group_vars/k8s-cluster/k8s-cluster.yaml` or
+though the teracy-dev-k8s host_vars configuration on the
+`workspace/teracy-dev-entry/config_override.yaml` file:
 
 ```
 teracy-dev-k8s:
@@ -374,7 +377,7 @@ After that:
 helm upgrade --install --namespace dex login charts/dex-k8s-authenticator -f dex-k8s-authenticator.yaml
 ```
 
-and open https://login.k8s.local for the k8s login instruction
+then open https://login.k8s.local for the k8s login instruction.
 
 
 Remember to assign roles for the authenticated users to access the k8s cluster, for example:
