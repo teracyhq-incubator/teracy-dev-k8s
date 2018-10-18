@@ -3,7 +3,7 @@
 This guide will help you to set up SSO for k8s. You should set up a local k8s to test this on local
 by following: https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
 
-We're going to use Dex as a OIDC provider for k8s authentication, you can use any other OIDC providers
+We're going to use Dex as an OIDC provider for k8s authentication, you can use any other OIDC providers
 with the similar deployment steps.
 
 
@@ -161,12 +161,12 @@ Then deploy it:
 
 
 ```
-$ kubectl create namespace dex # if dex namespace not created yet
+$ kubectl create namespace dex # if the dex namespace is not created yet
 $ helm upgrade --install --namespace dex dex stable/dex -f dex.yaml
 ```
 
-After that, `https://auth.k8s.local/.well-known/openid-configuration` should display info like the
-following content:
+After that, `https://auth.k8s.local/.well-known/openid-configuration` should display information
+like the following content:
 
 ```
 {
@@ -209,13 +209,13 @@ following content:
 
 `$ kubectl -n dex get configmaps dex-web-server-ca -o yaml` to see the dex CA root certifcate that
 the k8s api server must trust and the dex client apps must trust when the self-signed certificate is
-used for the dex deployment. Create the `sso/dex-ca.pem` file from the config map data above.
+used. Create the `sso/dex-ca.pem` file from the config map data above.
 
 
 ## Configure the k8s api server
 
-Set the ansible config, through the `workspace/inventory/group_vars/k8s-cluster/k8s-cluster.yaml` or
-though the teracy-dev-k8s host_vars configuration on the
+Set the ansible config, through the `workspace/inventory/group_vars/k8s-cluster/k8s-cluster.yaml` file
+or though the teracy-dev-k8s host_vars configuration within the
 `workspace/teracy-dev-entry/config_override.yaml` file:
 
 ```
@@ -230,14 +230,14 @@ teracy-dev-k8s:
       kube_oidc_groups_claim: groups
 ```
 
-- Copy the `sso/dex-ca.pem` file to the master server at `/etc/kubernetes/ssl/`:
+- Copy the `sso/dex-ca.pem` file to the `/etc/kubernetes/ssl/` diretory in the master server:
 
 ```
 $ vagrant ssh
 $ sudo cp /vagrant/workspace/sso/dex-ca.pem /etc/kubernetes/ssl/
 ```
 
-After that, `$ vagrant reload --provision` should enable the oidc auth for the k8s cluster.
+After that, `$ vagrant reload --provision` should activate the OIDC auth for the k8s cluster.
 
 
 ## login.k8s.local Dex K8s Authenticator Deployment
@@ -369,15 +369,15 @@ affinity: {}
 The `k8s_ca_pem` content is retrieved from the `inventory/artifacts/admin.conf` file by using base64
 decoding of the `client-certificate-data`. For example: `$ echo '<data>' | base64 --decode`
 
-The `dex-ca.crt` value is base64 encoded from the `dex-ca.pem` file.
+The `dex-ca.crt` value is encoded by base64 from the `dex-ca.pem` file.
 
-After that:
+Then execute the following command:
 
 ```
-helm upgrade --install --namespace dex login charts/dex-k8s-authenticator -f dex-k8s-authenticator.yaml
+$ helm upgrade --install --namespace dex login charts/dex-k8s-authenticator -f dex-k8s-authenticator.yaml
 ```
 
-then open https://login.k8s.local for the k8s login instruction.
+After that, open https://login.k8s.local for the k8s login instruction.
 
 
 Remember to assign roles for the authenticated users to access the k8s cluster, for example:
@@ -385,6 +385,15 @@ Remember to assign roles for the authenticated users to access the k8s cluster, 
 ```
 $ kubectl create clusterrolebinding hoatle-cluster-admin --user=hoatle@k8s.local --clusterrole=cluster-admin
 ```
+
+
+## SSO with k8s dashboard
+
+//TODO: https://github.com/teracyhq-incubator/teracy-dev-k8s/issues/33
+
+## SSO with docker registry
+
+//TODO: https://github.com/teracyhq-incubator/teracy-dev-k8s/issues/34
 
 
 ## References
