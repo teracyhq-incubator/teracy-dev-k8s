@@ -166,6 +166,7 @@ module TeracyDevK8s
               provisioner = {
                 "_id" => "k8s-1",
                 "type" => "ansible_local",
+                "name" => "teracy-dev-k8s",
                 "enabled" => true,
                 "playbook" => "#{playbook_path}",
                 "config_file" => "#{kubespray_lookup_path}/kubespray/ansible.cfg",
@@ -200,6 +201,7 @@ module TeracyDevK8s
               provisioner = {
                 "_id" => "k8s-1",
                 "type" => "ansible",
+                "name" => "teracy-dev-k8s",
                 "enabled" => true,
                 "playbook" => "#{playbook_path}",
                 "config_file" => "#{kubespray_lookup_path}/kubespray/ansible.cfg",
