@@ -2,8 +2,7 @@
 teracy-dev-k8s:
   # configurable here
   kubespray:
-    path:
-      lookup: extensions # relative to the Vagrantfile
+    lookup_path: extensions # relative to the Vagrantfile
     location:
       git:
         remote:
