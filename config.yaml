@@ -4,8 +4,10 @@ teracy-dev-k8s:
   kubespray:
     lookup_path: extensions # relative to the Vagrantfile
     location:
-      git: https://github.com/kubernetes-incubator/kubespray.git
-      branch: v2.7.0
+      git:
+        remote:
+          origin: https://github.com/kubernetes-incubator/kubespray.git
+        branch: v2.7.0
   ansible:
     verbose: v
     mode: guest # or host to run ansible from the host instead of from the guest
