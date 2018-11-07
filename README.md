@@ -104,7 +104,7 @@ And then set the `KUBECONFIG` env var for `kubectl` to work:
 $ cd workspace/inventory/artifacts
 $ export KUBECONFIG=$(pwd)/admin.conf
 $ # or if you want to use existing config
-$ export KUBECONFIG=$KUBE_CONFIG:$(pwd)/admin.conf
+$ export KUBECONFIG=$KUBECONFIG:$(pwd)/admin.conf
 $ # or
 $ export KUBECONFIG=$HOME/.kube/config:$(pwd)/admin.conf
 ```
