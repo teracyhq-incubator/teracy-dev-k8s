@@ -8,17 +8,6 @@ require 'teracy-dev/location/manager'
 module TeracyDevK8s
   module Processors
     class Settings < TeracyDev::Processors::Processor
-      COREOS_URL_TEMPLATE = "https://storage.googleapis.com/%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json"
-
-      SUPPORTED_OS = {
-        "coreos-stable" => {box: "coreos-stable",      bootstrap_os: "coreos", user: "core", box_url: COREOS_URL_TEMPLATE % ["stable"]},
-        "coreos-alpha"  => {box: "coreos-alpha",       bootstrap_os: "coreos", user: "core", box_url: COREOS_URL_TEMPLATE % ["alpha"]},
-        "coreos-beta"   => {box: "coreos-beta",        bootstrap_os: "coreos", user: "core", box_url: COREOS_URL_TEMPLATE % ["beta"]},
-        "ubuntu"        => {box: "bento/ubuntu-18.04", bootstrap_os: "ubuntu", user: "vagrant"},
-        "centos"        => {box: "centos/7",           bootstrap_os: "centos", user: "vagrant"},
-        "opensuse"      => {box: "opensuse/openSUSE-42.3-x86_64", bootstrap_os: "opensuse", use: "vagrant"},
-        "opensuse-tumbleweed" => {box: "opensuse/openSUSE-Tumbleweed-x86_64", bootstrap_os: "opensuse", use: "vagrant"},
-      }
 
       def process(settings)
 
@@ -99,6 +88,11 @@ module TeracyDevK8s
         network_type = k8s_config['network']['type']
         subnet = k8s_config['network']['subnet']
         os = k8s_config['os']
+        supported_os = k8s_config['supported_oses'].find { |item| item['_id'] == os }
+        if supported_os.nil?
+          @logger.error("#{os} is not supported")
+          abort
+        end
         network_plugin = k8s_config['network_plugin']
         etcd_instances = num_instances
         # The first two nodes are kube masters
@@ -108,9 +102,9 @@ module TeracyDevK8s
         ansible_host_vars = k8s_config['ansible']['host_vars']
         local_release_dir = k8s_config['local_release_dir']
         host_vars = {}
-        box = SUPPORTED_OS[os][:box]
-        if SUPPORTED_OS[os].has_key? :box_url
-          box_url = SUPPORTED_OS[os][:box_url]
+        box = supported_os['box']
+        if supported_os.has_key?('box_url')
+          box_url = supported_os['box_url']
         end
         kubespray_lookup_path = k8s_config['kubespray']['lookup_path']
         host_inventory = File.join(TeracyDev::BASE_DIR, 'workspace', 'inventory')
@@ -128,7 +122,7 @@ module TeracyDevK8s
           ip = "#{subnet}.#{i+100}"
           host_vars[vm_name] = {
             "ip": ip,
-            "bootstrap_os": SUPPORTED_OS[os][:bootstrap_os]
+            "bootstrap_os": supported_os['bootstrap_os']
           }
 
           host_vars[vm_name].merge!(ansible_host_vars)
@@ -148,7 +142,7 @@ module TeracyDevK8s
               }]
             },
             "ssh" => {
-              "username" => SUPPORTED_OS[os][:user]
+              "username" => supported_os['user']
             },
             "providers" => [{
               "_id" => "0",
