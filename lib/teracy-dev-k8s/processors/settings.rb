@@ -178,6 +178,11 @@ module TeracyDevK8s
                   "k8s-cluster:children" => ["kube-master", "kube-node"],
                 }
               }
+
+              if TeracyDev::Util.exist?(k8s_config['ansible']['version'])
+                provisioner['version'] = k8s_config['ansible']['version']
+              end
+
               node["provisioners"] = [provisioner]
               # map example inventory to /tmp/vagrant-ansible/inventory with the guest
               node['vm']['synced_folders'] = [{
