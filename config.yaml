@@ -18,7 +18,7 @@ teracy-dev-k8s:
     mode: guest # or host to run ansible from the host instead of from the guest
     playbook_path: cluster.yml # relative within the kubespray repo or /cluster.yml is relative to the Vagrantfile when appending / at the beginning as convention
     # you can add any host_vars here with key-value to override inventory
-    version: ''
+    version: # ansible guest version
     host_vars:
       local_release_dir: /tmp/release/
       kube_network_plugin: flannel
