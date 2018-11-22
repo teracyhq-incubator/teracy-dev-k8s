@@ -6,9 +6,9 @@ This page shows you how to install, upgrade and downgrade kubectl and helm on ma
 
 # Requirements:
 
-- homebrew available on macOS
-- chocolatey available on Windows
-- Ubuntu is preferred Linux distro
+- Homebrew available on macOS
+- Chocolatey available on Windows
+- At least ubuntu 16.04
 
 
 # Installing, upgrading and downgrading kubectl on your computer
@@ -137,10 +137,11 @@ You can install an older verion of helm.
 You can switch to an installed verion, for example, version 2.9.1
 
 ```
-$ brew switch kubernetes-helm 2.9.1```
+$ brew switch kubernetes-helm 2.9.1
 ```
 
 Or install a specific version by following the steps below, to have more details, see https://github.com/helm/helm/issues/4547#issuecomment-423312200.
+
 	- Click https://github.com/Homebrew/homebrew-core/search?q=kubernetes-helm&type=Commits to search for the correct `kubernetes-helm.rb` file for the version, for example, v2.9.1.
 	- Click the commit hash button (78d6425)
 	- Click the "View" button
@@ -154,13 +155,13 @@ Or install a specific version by following the steps below, to have more details
 	$ brew switch kubernetes-helm 2.9.1
 	```
 
-- On Linux (Ubuntu): To downgrade into the varion 2.10.0 for example:
+- On Linux (Ubuntu): For example, to downgrade into the version 2.10.0:
 
 ```
 $ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash -s -- -v v2.10.0
 ```
 
-- On Windows: To downgrade into the varion 2.10.0 for example:
+- On Windows: For example, to downgrade into the version 2.10.0:
 
 ```
 $ choco install kubernetes-helm --version 2.10.0 -y --allow-downgrade
