@@ -20,7 +20,6 @@ In this section, you should know how to install, upgrade and downgrade a version
 With the guide below, the latest version of kubeclt should be installed.
 
 
-
 - On macOS, follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-with-homebrew-on-macos.
 
 - On Linux (Ubuntu), follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-with-snap-on-ubuntu.
@@ -30,7 +29,14 @@ With the guide below, the latest version of kubeclt should be installed.
 Note: On Windows, to install kubectl with the autocompletion, you should add the option `-y` at the end of the command.
 
 ```
-choco install kubernetes-cli -y
+$ choco install kubernetes-cli -y
+```
+
+- To check the installed kubectl version, just run the command:
+
+```
+$ kubectl version
+
 ```
 
 ## Upgrading kubectl
@@ -39,29 +45,36 @@ This section shows you how to upgrade the latest verion of kubeclt.
 - On macOs:
 
 ```
-brew upgrade kubernetes-cli
+$ brew upgrade kubernetes-cli
 ```
 
-- On Linux (Ubuntu):
+- On Linux (Ubuntu): 
 
-//TODO
+```
+$ snap remove kubectl
+$ sudo snap install kubectl --classic
+```
 
 - On Window, use the command:
 
 ```
-choco upgrade kubernetes-cli -y
+$ choco upgrade kubernetes-cli -y
 ```
 
 
 ## Downgrading kubectl 
 
-This section shows you how to install an older version of kubectl, e.g `verion 1.11`, use the command below:
+This section shows you how to install an older version of kubectl, e.g `verion 1.11`.
 
 - On macOs: See the details at https://www.benpickles.com/articles/72-downgrading-kubectl-with-homebrew
 
 - On Linux (Ubuntu):
 
-//TODO
+```
+$ snap remove kubectl #remove the installed version
+$ snap info kubectl   # check the list of kubectl versions
+$ sudo snap install --channel 1.11/stable --classic kubectl #install v1.11
+```
 
 - On Windows:
 
@@ -75,35 +88,49 @@ Helm is a package management tool for Kubernetes, and is used to deploy charts. 
 
 ## Installing helm
 
-To install the latest version of helm on different OS, please see this official document https://docs.helm.sh/using_helm/#installing-the-helm-client.
+The commands below help you install the latest verion of hellm on different OS.
 
-Note: To install helm with the autocompletion, you should add the option `-y` at the end of the command.
-For example, install the helm on Windows:
+- On macOs:
 
 ```
-choco install kubernetes-helm -y
+$ brew install kubernetes-helm
 ```
+
+- On Linux: Please see the details at https://docs.helm.sh/using_helm/#from-script
+
+- On Windows:
+
+```
+$ choco install kubernetes-helm -y
+```
+
+To check the installed helm version, just run the command:
+
+```
+$ helm version
+
+```
+
+
 ## Upgrading helm
 
 - On macOs:
 
 ```
-brew upgrade kubernetes-helm
+$ brew upgrade kubernetes-helm
 ```
 
-- On Linux (Ubuntu):
-
-//TODO
+- On Linux (Ubuntu): See the details at https://docs.helm.sh/using_helm/#from-script
 
 - On Windows:
 
 ```
-choco upgrade kubernetes-helm -y
+$ choco upgrade kubernetes-helm -y
 ```
 
 
 ## Downgrading helm
-You can install an older verion of helm, e.g `verion 2.10.0`, use the command below:
+You can install an older verion of helm.
 
 - On macOs: 
 
@@ -127,11 +154,13 @@ Or install a specific version by following the steps below, to have more details
 	$ brew switch kubernetes-helm 2.9.1
 	```
 
-- On Linux (Ubuntu):
+- On Linux (Ubuntu): To downgrade into the varion 2.10.0 for example:
 
-//TODO
+```
+$ curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash -s -- -v v2.10.0
+```
 
-- On Windows:
+- On Windows: To downgrade into the varion 2.10.0 for example:
 
 ```
 $ choco install kubernetes-helm --version 2.10.0 -y --allow-downgrade
