@@ -1,5 +1,5 @@
 name: teracy-dev-k8s
-version: "0.3.0-SNAPSHOT"
+version: "0.3.0"
 description: k8s cluster setup on teracy-dev
 target: ">= 0.6.0-a5, < 0.7.0"
 dependencies:
