@@ -1,14 +1,14 @@
 # Docker Daemon Remote Access
 
 Similar to this https://kubernetes.io/docs/setup/minikube/#use-local-images-by-re-using-the-docker-daemon,
-this is useful in some some circumstances. You can follow this guide to enable remote access from
+it is useful in some circumstances. You can follow this guide to enable remote access from
 the host machine docker client to the VM docker daemon.
 
 
 ## Add dockerd options
 
-You and add the `-H` dockerd options via ansible configuration on the `teracy-dev-entry/config_override.yaml`
-with the following config:
+You can add the `-H` dockerd options via ansible configuration in the `teracy-dev-entry/config_override.yaml`
+file with the following configuration:
 
 ```yaml
 teracy-dev-k8s:
@@ -18,7 +18,7 @@ teracy-dev-k8s:
       docker_log_opts: "-H fd:// -H tcp://0.0.0.0:2375 --log-opt max-size=50m --log-opt max-file=5"
 ```
 
-and then `$ vagrant reload --provision` to get that config take effect.
+and then `$ vagrant reload --provision` to get that configuration take effect.
 
 
 ## Access the remote docker daemon
