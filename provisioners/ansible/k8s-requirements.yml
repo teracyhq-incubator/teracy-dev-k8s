@@ -1,0 +1,44 @@
+---
+- hosts: all
+  become: yes
+  any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
+  tasks:
+    - name: Check pip exists
+      command: which pip
+      register: pip_exist
+      ignore_errors: True
+
+    - name: Download get-pip.py
+      get_url:
+        url: https://bootstrap.pypa.io/get-pip.py
+        dest: /tmp/get-pip.py
+        mode: 0755
+      when: pip_exist is failed
+
+    - stat: path=/tmp/get-pip.py
+      register: stat_pip_result
+      when: pip_exist is failed
+
+    - name: Install pip
+      command: python /tmp/get-pip.py
+      register: pip_install
+      when:
+        - pip_exist is failed
+        - stat_pip_result.stat.exists == True
+
+    - debug:
+        msg: "pip has been installed"
+      when: (pip_install is succeeded) or (pip_exist is succeeded)
+
+    - stat: path=/vagrant/{{ kubespray_lookup_path }}/kubespray/requirements.txt
+      register: requirement_file
+
+    - name: Failed when requirement_file not exist
+      fail:
+        msg: "/vagrant/{{ kubespray_lookup_path }}/kubespray/requirements.txt not exists"
+      when: requirement_file.stat.exists == False
+
+    - name: Install Kuberspray pip requirements
+      pip:
+        requirements: /vagrant/{{ kubespray_lookup_path }}/kubespray/requirements.txt
+      when: requirement_file.stat.exists == True

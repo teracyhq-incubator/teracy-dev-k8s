@@ -157,6 +157,25 @@ module TeracyDevK8s
           if i == num_instances
 
             if k8s_config['ansible']['mode'] == 'guest'
+
+              k8s_requirement_extra_vars = {
+                "kubespray_lookup_path" => kubespray_lookup_path
+              }
+
+              provisioner_k8s_requirement = {
+                "_id" => "k8s-pip-requirements",
+                "type" => "ansible_local",
+                "name" => "set-up-teracy-dev-k8s-requirements",
+                "enabled" => true,
+                "playbook" => "%{teracy-dev-k8s-path}/provisioners/ansible/k8s-requirements.yml",
+                "become" => true,
+                "limit" => "all",
+                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
+                "verbose" => k8s_config['ansible']['verbose'],
+                "install_mode" => "pip",
+                "extra_vars" => k8s_requirement_extra_vars
+              }
+
               provisioner = {
                 "_id" => "k8s-1",
                 "type" => "ansible_local",
@@ -169,8 +188,6 @@ module TeracyDevK8s
                 "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
                 "host_vars" => host_vars,
                 "verbose" => k8s_config['ansible']['verbose'],
-                "install_mode" => "pip_args_only",
-                "pip_args" => "-r /vagrant/#{kubespray_lookup_path}/kubespray/requirements.txt",
                 "groups" => {
                   "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
                   "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
@@ -183,7 +200,7 @@ module TeracyDevK8s
                 provisioner['version'] = k8s_config['ansible']['version']
               end
 
-              node["provisioners"] = [provisioner]
+              node["provisioners"] = [provisioner_k8s_requirement, provisioner]
               # map example inventory to /tmp/vagrant-ansible/inventory with the guest
               node['vm']['synced_folders'] = [{
                 "_id" => "k8s-0",
