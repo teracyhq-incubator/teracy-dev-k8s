@@ -7,7 +7,7 @@ consume.
 
 ## Rook operator deployment
 
-- Set the VM RAM to be 4GB is recommended via the `teracy-dev-entry/config_override.yaml` file, for
+- Set the VM RAM to be 4GB (recommended) via the `teracy-dev-entry/config_override.yaml` file, for
 example:
 
 ```yaml
@@ -27,8 +27,7 @@ teracy-dev-k8s:
   $ helm install --namespace rook-ceph-system rook-beta/rook-ceph --set=agent.flexVolumeDirPath=/var/lib/kubelet/volume-plugins
   ```
 
-- Just need to make sure to set the the right value for `flexVolumeDirPath` and follow the Rook docs
-as is.
+- Just need to make sure to set the right value for `flexVolumeDirPath` and follow the Rook docs.
 
 ## rook-ceph-block storage class
 
