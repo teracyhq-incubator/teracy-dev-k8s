@@ -1,6 +1,6 @@
 # Cert Manager
 
-[cert-manager][] is used for automatically provisioning and managing TLS certificates in Kubernetes.
+[cert-manager][] is used for provisioning and managing TLS certificates in Kubernetes automatically.
 
 
 ## Enable cert-manager
@@ -92,6 +92,22 @@ Events:                    <none>
 
 You can now use the `ca-cluster-issuer` to generate any certificates by following the docs from
 https://cert-manager.readthedocs.io/en/latest/tutorials/ca/creating-ca-issuer.html.
+
+
+Notes:
+
+- The `ca-key-pair` secret must be created within the `cert-manager` namespace due to this:
+  https://github.com/jetstack/cert-manager/issues/650 but `$ vagrant reload --provision` everytime
+  will delete this created secret. There is a workaround that you need to comment the `cert-manager`
+  configuration on the `teracy-dev-entry/config_override.yaml` as follows:
+
+  ```yaml
+  teracy-dev-k8s:
+    ansible:
+      host_vars: {} # need this empty {} config if host_vars has no values
+        # comment cert_manager_enabled here so that ca-key-pair secret will not be deleted (workaround)
+        # cert_manager_enabled: "True"
+  ```
 
 
 ## References
