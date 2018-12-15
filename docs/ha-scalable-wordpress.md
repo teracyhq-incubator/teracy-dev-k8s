@@ -1,6 +1,6 @@
-# High availablity, scalable WordPress
+# High availability, scalable WordPress
 
-Follow this guide to set up a high availablity (HA) and scalable WordPress deployment on a k8s cluster.
+Follow this guide to set up a high availability (HA) and scalable WordPress deployment on a k8s cluster.
 
 
 ## Prerequisites
@@ -474,7 +474,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
 
 - Open https://wordpress.k8s.local and you should see the default WordPress home page
 
-- Open https://wordpress.k8s.local/wp-login.php to login with the username and password defined
+- Open https://wordpress.k8s.local/wp-login.php to log in with the username and password defined
   in the `wordpress-override.yaml` file.
 
   + Note: if you can not login with the defined password (something wrong here, will be fixed later),
