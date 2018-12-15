@@ -18,7 +18,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
 - Deploy the operator:
 
   ```bash
-  $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd docs/ha-scalable-wordpress
   $ kubectl create namespace mysql-operator # create if not exists yet
   $ helm repo add presslabs https://presslabs.github.io/charts
   $ helm upgrade --install mysql-operator presslabs/mysql-operator --namespace=mysql-operator -f mysql-operator-override.yaml
@@ -108,7 +108,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
 - Create a MySQL cluster, for example:
 
   ```bash
-  $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd docs/ha-scalable-wordpress
   $ kubectl create namespace wordpress # create if not exists yet
   $ kubectl apply -f mysql-secret.yaml --namespace=wordpress # create secret for the mysql-cluster.yaml
   $ kubectl apply -f mysql-cluster.yaml --namespace=wordpress # create a MySQL cluster
@@ -132,8 +132,8 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   db-cluster-mysql-nodes    ClusterIP   None            <none>        3306/TCP,9125/TCP   2m
   ```
 
-- Access the created MySQL cluster with the host as services names above and root password defined
-  in the `mysql-secret.yaml` (`admin` by default) file:
+- Access the created MySQL cluster with the host as service names above and root password defined
+  in the `mysql-secret.yaml` file (`admin` by default):
 
   ```bash
   $ kubectl run mysql-client --image=bitnami/wordpress:4.9.8 -it --rm --restart=Never --namespace=wordpress bash
@@ -150,7 +150,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   MySQL [(none)]>
   ```
 
-- Create database and user for the WordPress:
+- Create a database and user for the WordPress application:
 
   ```bash
   $ kubectl run mysql-client --image=bitnami/wordpress:4.9.8 -it --rm --restart=Never --namespace=wordpress bash
@@ -180,7 +180,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   ```
 
   The database name (`wordpress`) with username (`wordpress`) and password (`mypass`) created above
-  will be used for the WordPress deployment below.
+  will be used for the WordPress application below.
 
 
 ## WordPress Deployment
@@ -191,7 +191,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   + Create a Rook `NFSServer`:
 
     ```bash
-    $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ cd docs/ha-scalable-wordpress
     $ kubectl apply -f nfs-ceph.yaml
     ```
 
@@ -222,8 +222,8 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
     `docs/ha-scalable-wordpress/nfs-pv.yaml` file and execute the following command:
 
     ```bash
-    $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
-    $ kubectl apply -f nfs-pv.yaml 
+    $ cd docs/ha-scalable-wordpress
+    $ kubectl apply -f nfs-pv.yaml
     persistentvolume/rook-nfs-pv created
     ```
 
@@ -242,7 +242,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   + Create a `PersistentVolumeClaim` with `ReadWriteMany` (RWX) access modes:
 
     ```bash
-    $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ cd docs/ha-scalable-wordpress
     $ kubectl apply -f wordpress-pvc.yaml --namespace=wordpress
     persistentvolumeclaim/wp-app-nfs-pv-claim created
     ```
@@ -272,7 +272,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
     ```
 
     ```bash
-    $ kubectl -n wordpress exec -it nfs-web-dg87c bash # use the pod name found above
+    $ kubectl -n wordpress exec -it nfs-web-dg87c bash # use the pod name displayed above
     root@nfs-web-dg87c:/# ls -la /usr/share/nginx/html/ # check the volume content
     total 36
     drwxr-xr-x 6 nobody 4294967294  4096 Dec 13 19:24 .
@@ -281,7 +281,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
     drwx------ 2 nobody 4294967294 16384 Dec 13 18:56 lost+found
     drwxr-xr-x 3 nobody 4294967294  4096 Dec 13 19:27 php
     drwxr-xr-x 3 nobody 4294967294  4096 Dec 13 20:32 wordpress
-    root@nfs-web-dg87c:/# rm -rf /usr/share/nginx/html/* # clean up
+    root@nfs-web-dg87c:/# rm -rf /usr/share/nginx/html/* # clean up if you want
     root@nfs-web-dg87c:/# ls -la /usr/share/nginx/html/
     total 8
     drwxr-xr-x 2 nobody 4294967294 4096 Dec 13 21:03 .
@@ -302,7 +302,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   Create a TLS certificate:
 
   ```bash
-  $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd docs/ha-scalable-wordpress
   $ kubectl apply -f certificate.yaml --namespace=wordpress
   certificate.certmanager.k8s.io/wordpress-k8s-local created
   ```
@@ -357,7 +357,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
 - Deploy the WordPress application:
 
   ```bash
-  $ cd workspace/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd docs/ha-scalable-wordpress
   $ helm upgrade --install wp-app stable/wordpress --namespace=wordpress -f wordpress-override.yaml
   ```
 
@@ -467,7 +467,7 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
   ```
 
 
-## Access the WordPress Site
+## Access the WordPress Application
 
 - Trust the self signed generated CA certificate file (`workspace/certs/k8s-local-ca.crt`) by
   following https://github.com/teracyhq-incubator/teracy-dev-certs#how-to-trust-the-self-signed-ca-certificate
@@ -477,8 +477,8 @@ Follow this guide to set up a high availablity (HA) and scalable WordPress deplo
 - Open https://wordpress.k8s.local/wp-login.php to login with the username and password defined
   in the `wordpress-override.yaml` file.
 
-  + Note: if you can not login with the defined password (something wrong here), you need to
-    reset the password with the following commands:
+  + Note: if you can not login with the defined password (something wrong here, will be fixed later),
+    you need to reset the password with the following commands:
 
     ```bash
     $ kubectl run mysql-client --image=bitnami/wordpress:4.9.8 -it --rm --restart=Never --namespace=wordpress bash
