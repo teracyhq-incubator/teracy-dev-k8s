@@ -1,0 +1,16 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: wordpress-k8s-local
+spec:
+  secretName: wordpress-k8s-local-tls
+  issuerRef:
+    name: ca-cluster-issuer
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+  commonName: wordpress.k8s.local
+  organization:
+  - WordPress
+  dnsNames:
+  - wordpress.k8s.local
