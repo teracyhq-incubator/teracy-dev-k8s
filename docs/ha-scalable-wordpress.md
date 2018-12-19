@@ -18,7 +18,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Deploy the operator:
 
   ```bash
-  $ cd docs/ha-scalable-wordpress
+  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl create namespace mysql-operator # create if not exists yet
   $ helm repo add presslabs https://presslabs.github.io/charts
   $ helm upgrade --install mysql-operator presslabs/mysql-operator --namespace=mysql-operator -f mysql-operator-override.yaml
@@ -108,7 +108,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Create a MySQL cluster, for example:
 
   ```bash
-  $ cd docs/ha-scalable-wordpress
+  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl create namespace wordpress # create if not exists yet
   $ kubectl apply -f mysql-secret.yaml --namespace=wordpress # create secret for the mysql-cluster.yaml
   $ kubectl apply -f mysql-cluster.yaml --namespace=wordpress # create a MySQL cluster
@@ -191,7 +191,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
   + Create a Rook `NFSServer`:
 
     ```bash
-    $ cd docs/ha-scalable-wordpress
+    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
     $ kubectl apply -f nfs-ceph.yaml
     ```
 
@@ -219,10 +219,10 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
     ```
 
     Fill in the value `10.233.26.45`, for example, from the ouput above in to the
-    `docs/ha-scalable-wordpress/nfs-pv.yaml` file and execute the following command:
+    `~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/nfs-pv.yaml` file and execute the following command:
 
     ```bash
-    $ cd docs/ha-scalable-wordpress
+    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
     $ kubectl apply -f nfs-pv.yaml
     persistentvolume/rook-nfs-pv created
     ```
@@ -242,7 +242,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
   + Create a `PersistentVolumeClaim` with `ReadWriteMany` (RWX) access modes:
 
     ```bash
-    $ cd docs/ha-scalable-wordpress
+    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
     $ kubectl apply -f wordpress-pvc.yaml --namespace=wordpress
     persistentvolumeclaim/wp-app-nfs-pv-claim created
     ```
@@ -302,7 +302,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
   Create a TLS certificate:
 
   ```bash
-  $ cd docs/ha-scalable-wordpress
+  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl apply -f certificate.yaml --namespace=wordpress
   certificate.certmanager.k8s.io/wordpress-k8s-local created
   ```
@@ -357,7 +357,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Deploy the WordPress application:
 
   ```bash
-  $ cd docs/ha-scalable-wordpress
+  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
   $ helm upgrade --install wp-app stable/wordpress --namespace=wordpress -f wordpress-override.yaml
   ```
 
