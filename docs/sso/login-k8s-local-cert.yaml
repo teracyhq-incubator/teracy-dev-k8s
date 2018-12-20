@@ -1,0 +1,14 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: login-k8s-local
+spec:
+  secretName: login-k8s-local-tls
+  issuerRef:
+    name: ca-cluster-issuer
+    kind: ClusterIssuer
+  commonName: login.k8s.local
+  organization:
+  - Dex
+  dnsNames:
+  - login.k8s.local
