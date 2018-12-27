@@ -121,8 +121,7 @@ module TeracyDevK8s
           vm_name = "%s-%02d" % [instance_name_prefix, i]
           ip = "#{subnet}.#{i+100}"
           host_vars[vm_name] = {
-            "ip": ip,
-            "bootstrap_os": supported_os['bootstrap_os']
+            "ip": ip
           }
 
           host_vars[vm_name].merge!(ansible_host_vars)
@@ -224,7 +223,7 @@ module TeracyDevK8s
                 "become" => true,
                 "limit" => "all",
                 "host_key_checking" => false,
-                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
+                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache", "--ask-become-pass"],
                 "host_vars" => host_vars,
                 "verbose" => k8s_config['ansible']['verbose'],
                 "groups" => {
@@ -252,4 +251,3 @@ module TeracyDevK8s
     end
   end
 end
-
