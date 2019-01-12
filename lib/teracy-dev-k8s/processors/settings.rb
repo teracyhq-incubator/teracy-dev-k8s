@@ -188,6 +188,7 @@ module TeracyDevK8s
                 "host_vars" => host_vars,
                 "verbose" => k8s_config['ansible']['verbose'],
                 "groups" => {
+                  "localhost" => ["#{instance_name_prefix}-0[1:#{num_instances}]"],
                   "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
                   "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
                   "kube-node" => ["#{instance_name_prefix}-0[1:#{kube_node_instances}]"],
@@ -227,6 +228,7 @@ module TeracyDevK8s
                 "host_vars" => host_vars,
                 "verbose" => k8s_config['ansible']['verbose'],
                 "groups" => {
+                  "localhost" => ["#{instance_name_prefix}-0[1:#{num_instances}]"],
                   "etcd" => ["#{instance_name_prefix}-0[1:#{etcd_instances}]"],
                   "kube-master" => ["#{instance_name_prefix}-0[1:#{kube_master_instances}]"],
                   "kube-node" => ["#{instance_name_prefix}-0[1:#{kube_node_instances}]"],
