@@ -32,7 +32,7 @@ teracy-dev-k8s:
   instance_name_prefix: "k8s"
   vm_gui: false
   vm_memory: 2048
-  vm_cpus: 1
+  vm_cpus: 2
   os: ubuntu # must match one of the _id from supported_oses
   supported_oses:
     # ubuntu
