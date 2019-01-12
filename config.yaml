@@ -27,6 +27,10 @@ teracy-dev-k8s:
       download_run_once: "False"
       kubeconfig_localhost: "True"
       kubectl_localhost: "True"
+      disable_ipv6_dns: "True"
+      kube_proxy_mode: iptables
+      kube_service_addresses: 10.96.0.0/16
+      kube_pods_subnet: 10.244.0.0/16
 
   num_instances: 1
   instance_name_prefix: "k8s"
