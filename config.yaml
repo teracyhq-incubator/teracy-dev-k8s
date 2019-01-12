@@ -94,9 +94,3 @@ teracy-dev-k8s:
         memory:
         cpus:
         description: "k8s #{Time.now.getutc.to_i}"
-    provisioners:
-      - _id: "k8s-0"
-        name: "teracy-dev-k8s-swapoff"
-        type: shell
-        enabled: true
-        inline: swapoff -a
