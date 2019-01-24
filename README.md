@@ -14,13 +14,15 @@ Configure `workspace/teracy-dev-entry/config_default.yaml` with the following si
 ```yaml
 teracy-dev:
   extensions:
-    - _id: "entry-0" # this _id is used for overriding by the config_override.yaml file
+    - _id: "entry-k8s" # this _id is used for overriding by the config_override.yaml file
       path:
         extension: teracy-dev-k8s
       location:
-        git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
-        branch: v0.2.0
-      require_version: ">= 0.2.0, < 0.3.0"
+        git:
+          remote:
+            origin: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
+          branch: v0.3.0
+      require_version: ">= 0.3.0"
       enabled: true
 ```
 
@@ -29,13 +31,15 @@ teracy-dev:
 ```yaml
 teracy-dev:
   extensions:
-    - _id: "entry-0" # this _id is used for overriding by the config_override.yaml file
+    - _id: "entry-k8s" # this _id is used for overriding by the config_override.yaml file
       path:
         extension: teracy-dev-k8s
       location:
-        git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
-        branch: master
-      require_version: ">= 0.2.0, < 0.3.0"
+        git:
+          remote:
+            origin: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
+          branch: master
+      require_version: ">= 0.3.0"
       enabled: true
 ```
 
@@ -45,13 +49,15 @@ teracy-dev:
 ```yaml
 teracy-dev:
   extensions:
-    - _id: "entry-0" # this _id is used for overriding by the config_override.yaml file
+    - _id: "entry-k8s" # this _id is used for overriding by the config_override.yaml file
       path:
         extension: teracy-dev-k8s
       location:
-        git: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
-        branch: develop
-      require_version: ">= 0.3.0-SNAPSHOT"
+        git:
+          remote:
+            origin: https://github.com/teracyhq-incubator/teracy-dev-k8s.git
+          branch: develop
+      require_version: ">= 0.4.0-SNAPSHOT"
       enabled: true
 ```
 
@@ -151,13 +157,15 @@ Configure `workspace/teracy-dev-entry/config_override.yaml` with the following s
 ```yaml
 teracy-dev:
   extensions:
-    - _id: "entry-0" # make sure the right _id matching from the config_default.yaml file
+    - _id: "entry-k8s" # make sure the right _id matching from the config_default.yaml file
       path:
         lookup: workspace
       location:
-        git: git@github.com:hoatle/teracy-dev-k8s.git # your forked repo
-        branch: develop
-      require_version: ">= 0.3.0-SNAPSHOT"
+        git:
+          remote:
+            origin: git@github.com:hoatle/teracy-dev-k8s.git # your forked repo
+          branch: develop
+      require_version: ">= 0.4.0-SNAPSHOT"
 ```
 
 

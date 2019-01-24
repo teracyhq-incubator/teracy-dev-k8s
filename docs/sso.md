@@ -12,6 +12,8 @@ with the similar deployment steps.
 
 - `kubectl` and `helm` is installed on your host machine and follow: https://github.com/teracyhq-incubator/teracy-dev-k8s#accessing-kubernetes-api
 
+- [cert-manager](cert-manager.md) to set up a CA cluster issuer
+
 
 ## Domain Aliases
 
@@ -24,205 +26,130 @@ We can use the following config by adding into the `teracy-dev-entry/config_over
 nodes:
   - _id: "0"
     plugins:
-      - _id: "entry-0"
+      - _id: entry-hostmanager
         options:
           _ua_aliases: # set domain aliases for the master node
-            - "accounts.%{node_hostname_prefix}.%{node_domain_affix}"
-            - "login.%{node_hostname_prefix}.%{node_domain_affix}"
+            - accounts.k8s.local
+            - login.k8s.local
 ```
-
-## Certs
-
-We need to use `accounts.k8s.local` and `login.k8s.local` with the generated certs.
-
-We can use the following config by adding into the `teracy-dev-entry/config_override.yaml` file:
-
-```
-teracy-dev-certs:
-  alt_names:
-    - "accounts.%{node_hostname_prefix}.%{node_domain_affix}"
-    - "login.%{node_hostname_prefix}.%{node_domain_affix}"
-```
-
-`$ vagrant provision` or `$ vagrant provision --provision-with teracy-dev-certs` should (re)generate
-the up-to-date certificates.
-
-
-Make sure to trust the self signed CA certificate by following: https://github.com/teracyhq-incubator/teracy-dev-certs#how-to-trust-the-self-signed-ca-certificate
-
 
 ## accounts.k8s.local Dex Deployment
 
-```
-$ mkdir -p ~/k8s-dev/workspace/sso
-$ cd ~/k8s-dev/workspace/sso
-$ helm inspect values stable/dex > dex.yaml
-```
+Create the "dex" namespace to deploy the app:
 
-And the adjust the `dex.yaml` file, for example:
-
-```yaml
-# Default values for dex
-# This is a YAML-formatted file.
-# Declare name/value pairs to be passed into your templates.
-# name: value
-
-image: quay.io/dexidp/dex
-imageTag: "v2.11.0"
-imagePullPolicy: "IfNotPresent"
-
-inMiniKube: false
-
-nodeSelector: {}
-
-replicas: 1
-
-# resources:
-  # limits:
-    # cpu: 100m
-    # memory: 50Mi
-  # requests:
-    # cpu: 100m
-    # memory: 50Mi
-
-ports:
-  - name: http
-    containerPort: 8080
-    protocol: TCP
-#   nodePort: 32080
-  - name: grpc
-    containerPort: 5000
-    protocol: TCP
-
-service:
-  type: ClusterIP
-  annotations: {}
-
-ingress:
-  enabled: true
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - accounts.k8s.local
-  tls:
-   - secretName: k8s-local-tls
-     hosts:
-       - accounts.k8s.local
-
-extraVolumes: []
-extraVolumeMounts: []
-
-certs:
-  image: gcr.io/google_containers/kubernetes-dashboard-init-amd64
-  imageTag: "v1.0.0"
-  imagePullPolicy: "IfNotPresent"
-  web:
-    create: true
-    activeDeadlineSeconds: 300
-    caDays: 10000
-    certDays: 10000
-    altNames:
-      - dex.io
-    altIPs: {}
-    secret:
-      tlsName: dex-web-server-tls
-      caName: dex-web-server-ca
-  grpc:
-    create: true
-    activeDeadlineSeconds: 300
-    altNames:
-      - dex.io
-    altIPs: {}
-    secret:
-      serverTlsName: dex-grpc-server-tls
-      clientTlsName: dex-grpc-client-tls
-      caName: dex-grpc-ca
-
-env: []
-
-rbac:
-  # Specifies whether RBAC resources should be created
-  create: true
-
-serviceAccount:
-  # Specifies whether a ServiceAccount should be created
-  create: true
-  # The name of the ServiceAccount to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name:
-
-config:
-  issuer: https://accounts.k8s.local
-  storage:
-    type: kubernetes
-    config:
-      inCluster: true
-  logger:
-    level: debug
-  web:
-    http: 0.0.0.0:8080
-#   tlsCert: /etc/dex/tls/https/server/tls.crt
-#   tlsKey: /etc/dex/tls/https/server/tls.key
-  grpc:
-    addr: 0.0.0.0:5000
-    tlsCert: /etc/dex/tls/grpc/server/tls.crt
-    tlsKey: /etc/dex/tls/grpc/server/tls.key
-    tlsClientCA: /etc/dex/tls/grpc/ca/tls.crt
-  connectors:
-    - type: github
-      id: github
-      name: GitHub
-      config:
-        clientID: <fill_in_here>
-        clientSecret: <fill_in_here>
-        redirectURI: https://accounts.k8s.local/callback
-#      org: kubernetes
-  oauth2:
-    skipApprovalScreen: true
-
-  staticClients:
-    - id: k8s-authenticator
-      redirectURIs:
-        - 'https://login.k8s.local/callback/k8s'
-      name: 'k8s Authenticator App'
-      secret: tVi5untH4I8OBy42mf5DOpTf0Q04N+bQ
-  enablePasswordDB: false
-
-# staticPasswords:
-#  - email: "admin@example.com"
-#    # bcrypt hash of the string "password"
-#    hash: "$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W"
-#    username: "admin"
-#    userID: "08a8684b-db88-4b73-90a9-3cd1661f5466"
-```
-
-
-Create the "dex" namespace to deploy the app.
-
-```
+```bash
 $ kubectl create namespace dex
 ```
 
-Create the `dex-web-server-tls` tls secret for ingress from the generated cert within the
-`workspace/certs` directory:
+Create the `accounts-k8s-local-tls` TLS certificate for ingress:
 
+```bash
+$ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/sso
+$ kubectl apply -f accounts-k8s-local-cert.yaml --namespace=dex
+certificate.certmanager.k8s.io/accounts-k8s-local created
 ```
-$ cd workspace/certs
-$ kubectl create secret tls k8s-local-tls --key=k8s-local-key.pem --cert=k8s-local.crt --namespace=dex
+
+You should see the following output:
+
+```bash
+$ kubectl -n dex describe certificates accounts-k8s-local
+Name:         accounts-k8s-local
+Namespace:    dex
+Labels:       <none>
+Annotations:  kubectl.kubernetes.io/last-applied-configuration:
+                {"apiVersion":"certmanager.k8s.io/v1alpha1","kind":"Certificate","metadata":{"annotations":{},"name":"accounts-k8s-local","namespace":"dex...
+API Version:  certmanager.k8s.io/v1alpha1
+Kind:         Certificate
+Metadata:
+  Creation Timestamp:  2018-12-19T16:43:17Z
+  Generation:          1
+  Resource Version:    1749581
+  Self Link:           /apis/certmanager.k8s.io/v1alpha1/namespaces/dex/certificates/accounts-k8s-local
+  UID:                 2fa27113-03ad-11e9-896d-08002781145e
+Spec:
+  Common Name:  accounts.k8s.local
+  Dns Names:
+    accounts.k8s.local
+  Issuer Ref:
+    Kind:  ClusterIssuer
+    Name:  ca-cluster-issuer
+  Organization:
+    Dex
+  Secret Name:  accounts-k8s-local-tls
+Status:
+  Conditions:
+    Last Transition Time:  2018-12-19T16:43:19Z
+    Message:               Certificate issued successfully
+    Reason:                CertIssued
+    Status:                True
+    Type:                  Ready
+Events:
+  Type    Reason      Age   From          Message
+  ----    ------      ----  ----          -------
+  Normal  IssueCert   23s   cert-manager  Issuing certificate...
+  Normal  CertIssued  23s   cert-manager  Certificate issued successfully
 ```
 
-Create a GitHub OAuth app to fill in the client id and client secret, make sure the matching redirect uri.
+[Create a GitHub OAuth app](https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/)
+to get the client id and client secret, make sure the redirect uri (https://accounts.k8s.local/callback)
+matches the `Authorization callback URL`.
 
-You can use `$ openssl rand -base64 24` to create a secret.
+Export variables for setting:
+
+```bash
+$ export GITHUB_CLIENT_ID= #fill in here
+$ export GITHUB_CLIENT_SECRET= # fill in here
+# can use: export AUTHENTICATOR_SECRET=$(openssl rand -base64 24) && echo $AUTHENTICATOR_SECRET
+$ export AUTHENTICATOR_SECRET=tVi5untH4I8OBy42mf5DOpTf0Q04N+bQ # use this for the example only
+```
 
 Then deploy it:
 
+```bash
+$ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/sso
+$ helm upgrade --install --namespace dex dex stable/dex -f dex.yaml --set=config.connectors[0].config.clientID=$GITHUB_CLIENT_ID --set=config.connectors[0].config.clientSecret=$GITHUB_CLIENT_SECRET --set=config.staticClients[0].secret=$AUTHENTICATOR_SECRET
+Release "dex" does not exist. Installing it now.
+NAME:   dex
+LAST DEPLOYED: Thu Dec 20 00:04:33 2018
+NAMESPACE: dex
+STATUS: DEPLOYED
+
+RESOURCES:
+==> v1/Service
+NAME  AGE
+dex   47s
+
+==> v1beta2/Deployment
+dex  47s
+
+==> v1beta1/Ingress
+dex  47s
+
+==> v1/Pod(related)
+
+NAME                  READY  STATUS             RESTARTS  AGE
+dex-7f4c644fb6-f5xjq  0/1    ContainerCreating  0         47s
+
+==> v1/Secret
+
+NAME  AGE
+dex   47s
+
+==> v1/ServiceAccount
+dex  47s
+
+==> v1beta1/ClusterRoleBinding
+dex  47s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+  https://accounts.k8s.local/
 ```
-$ cd workspace/sso
-$ helm upgrade --install --namespace dex dex stable/dex -f dex.yaml
-```
+
+Trust the self signed generated CA certificate file (`workspace/certs/k8s-local-ca.crt`) by
+following https://github.com/teracyhq-incubator/teracy-dev-certs#how-to-trust-the-self-signed-ca-certificate
+
 
 After that, `https://accounts.k8s.local/.well-known/openid-configuration` should display information
 like the following content:
@@ -266,10 +193,9 @@ like the following content:
 }
 ```
 
-## Configure the k8s api server
+## Configure the K8S API Server
 
-Set the ansible config through the `workspace/inventory/group_vars/k8s-cluster/k8s-cluster.yaml` file
-or though the teracy-dev-k8s host_vars configuration within the
+Set the ansible configuration through the `teracy-dev-k8s`'s `host_vars` in the
 `workspace/teracy-dev-entry/config_override.yaml` file:
 
 ```
@@ -301,7 +227,7 @@ auth for the k8s cluster.
 
 ```
 $ cd ~/k8s-dev/workspace
-$ git clone https://github.com/mintel/dex-k8s-authenticator
+$ git clone https://github.com/mintel/dex-k8s-authenticator.git
 $ cd dex-k8s-authenticator
 $ helm inspect values charts/dex-k8s-authenticator > dex-k8s-authenticator.yaml
 ```
@@ -375,7 +301,7 @@ ingress:
   hosts:
     - login.k8s.local
   tls:
-   - secretName: k8s-local-tls
+   - secretName: login-k8s-local-tls
      hosts:
        - login.k8s.local
 
@@ -425,12 +351,26 @@ affinity: {}
 The `k8s_ca_pem` content is retrieved from the `inventory/artifacts/admin.conf` file by using base64
 decoding of the `certificate-authority-data`. For example: `$ echo '<data>' | base64 --decode`
 
-The `k8s-local-ca.crt` value is encoded by base64 from the `certs/k8s-local-ca.crt` file.
+The `k8s-local-ca.crt` value is encoded by base64 from the `certs/k8s-local-ca.crt` file:
+
+```bash
+$ cd ~/k8s-dev/workspace/certs
+$ cat k8s-local-ca.crt | base64
+```
+
+Create the `login-k8s-local-tls` TLS certificate for ingress:
+
+```bash
+$ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/sso
+$ kubectl apply -f login-k8s-local-cert.yaml --namespace=dex
+certificate.certmanager.k8s.io/login-k8s-local created
+```
 
 
 Then execute the following command:
 
-```
+```bash
+$ cd ~/k8s-dev/workspace/dex-k8s-authenticator
 $ helm upgrade --install --namespace dex login charts/dex-k8s-authenticator -f dex-k8s-authenticator.yaml
 ```
 

@@ -1,0 +1,6 @@
+# set this to false after the 1st helm chart installation
+# installCRDs: false
+
+orchestrator:
+  persistence:
+    storageClass: rook-ceph-block
