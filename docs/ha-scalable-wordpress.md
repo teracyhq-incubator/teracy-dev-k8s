@@ -188,6 +188,13 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Create a `PersistentVolumeClaim` with `ReadWriteMany` (RWX) access modes so that we can deploy multiple
   WordPress containers sharing the same file system to access the shared resources:
 
+  + Deploy NFS operator:
+
+    ```bash
+    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ kubectl apply -f nfs-operator.yaml
+    ```
+
   + Create a Rook `NFSServer`:
 
     ```bash
@@ -218,11 +225,19 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
     NFS server: 10.233.26.45
     ```
 
-    Fill in the value `10.233.26.45`, for example, from the ouput above in to the
-    `~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/nfs-pv.yaml` file and execute the following command:
+    Copy the `nfs-pv.yaml` file into the `wordpress` directory to update:
 
     ```bash
-    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ cd ~/k8s-dev/workspace
+    $ mkdir -p wordpress && cd wordpress
+    $ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/nfs-pv.yaml .
+    ```
+
+    Fill in the value `10.233.26.45`, for example, from the ouput above in to the
+    `~/k8s-dev/workspace/nfs-pv.yaml` file and execute the following command:
+
+    ```bash
+    $ cd ~/k8s-dev/workspace/wordpress
     $ kubectl apply -f nfs-pv.yaml
     persistentvolume/rook-nfs-pv created
     ```
@@ -510,7 +525,333 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 
 - Enjoy!
 
+
+## Backup and Restore
+
+We need to backup both the database and the application files regularly and can restore the backups
+any time.
+
+There are many supported backends for the backup, we use Google Cloud Storage (GCS)
+in this example, however, you can apply the same with other kinds of backends.
+
+For backup, restore and disaster-recovery, we'll use:
+
+- https://github.com/appscode/stash
+- https://heptio.github.io/velero
+
+and the solution provided by specific operators if any:
+- https://www.presslabs.com/code/mysqloperator/backups/
+
+
+### GCS Bucket Setup
+
+To use GCS, we need to create a bucket and a service account to manage it.
+
+- Make sure to install and configure `gcloud`, `gsutil` for your project.
+
+- Create the GCS bucket
+
+  ```bash
+  $ BUCKET=<YOUR_BUCKET> # set your created bucket here, for example: BUCKET=hoatle-backup
+  $ USERNAME=<YOUR_GITHUB_USERNAME> # for example: USERNAME=hoatle
+  $ gsutil mb gs://$BUCKET/
+  ```
+
+- Create the service account
+
+  ```bash
+  $ PROJECT_ID=$(gcloud config get-value project)
+  $ gcloud iam service-accounts create $USERNAME-backup \
+       --display-name "$USERNAME-backup service account"
+  ```
+
+- `gcloud iam service-accounts list` should list the created service account.
+
+
+- Set the $SERVICE_ACCOUNT_EMAIL variable to match the created email value.
+
+  ```bash
+  $ SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
+     --filter="displayName:$USERNAME-backup service account" \
+     --format 'value(email)')
+  ```
+
+- Bind the create service account with the appropriate policy to the bucket:
+
+  ```bash
+  $ gsutil iam ch serviceAccount:$SERVICE_ACCOUNT_EMAIL:objectAdmin gs://$BUCKET
+  ```
+
+  We can bind more service accounts or user accounts with the appropriate policy to the bucket,
+  for example, read-only access so that others can restore the data from this bucket.
+
+
+- `$ gsutil iam get gs://$BUCKET` should display all the binding.
+
+- Create a service account key, specifying an output file (`gcs-credentials.json`) in your local
+  directory:
+
+  ```bash
+  $ cd ~/k8s-dev/workspace/wordpress
+  $ gcloud iam service-accounts keys create gcs-credentials.json \
+       --iam-account $SERVICE_ACCOUNT_EMAIL
+  ```
+
+- If you don't have permission to set up the bucket, ask your project administrator for the bucket
+  and service account information.
+
+
+### Database Backup
+
+- Create a secret for the db cluster:
+
+  ```bash
+  $ cd ~/k8s-dev/workspace/wordpress
+  $ kubectl create secret generic db-cluster-gcs-secret \
+      --namespace wordpress \
+      --from-literal=GCS_PROJECT_ID=$PROJECT_ID \
+      --from-file=GCS_SERVICE_ACCOUNT_JSON_KEY=gcs-credentials.json
+  ```
+
+- Copy the `mysql-cluster.yaml` file:
+
+  ```bash
+  $ cd ~/k8s-dev/workspace/wordpress
+  $ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/mysql-cluster.yaml .
+  ```
+
+- Fill in the `mysql-cluster.yaml` file with the `backupSecretName` and `backupURL`, for example:
+
+  ```yaml
+    # backup
+    backupSecretName: db-cluster-gcs-secret
+    backupURL: gs://hoatle-backup/k8s-local/wordpress/db-cluster
+  ```
+
+  We should follow this convention: `gs://<YOUR_BUCKET>/<YOUR_K8S_CLUSTER>/<NAMESPACE>` to store
+  backups.
+
+- Apply the updated changes:
+
+  ```bash
+  $ cd ~/k8s-dev/workspace/wordpress
+  $ kubectl apply -f mysql-cluster.yaml --namespace=wordpress # update the MySQL cluster
+  ```
+
+- Create the database backup:
+
+  ```bash
+  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ kubectl apply -f mysql-backup.yaml --namespace=wordpress
+  ```
+
+- We should see the created backup file, for example:
+
+  ```bash
+  $ gsutil ls gs://$BUCKET/k8s-local/wordpress/db-cluster
+  gs://hoatle-backup/k8s-local/wordpress/db-cluster/db-cluster-2019-02-18T08:53:49.xbackup.gz
+  ```
+
+- For recurrent backups: follow https://www.presslabs.com/code/mysqloperator/cluster-recurrent-backups/
+
+
+### Database Restore
+
+- Fill in the `workspace/wordpress/mysql-cluster.yaml` file with the `initBucketSecretName` and
+`initBucketURI`, for example:
+
+```yaml
+  # recovery
+  initBucketSecretName: db-cluster-gcs-secret
+  initBucketURI: gs://hoatle-backup/k8s-local/wordpress/db-cluster/db-cluster-2019-02-18T08:53:49.xbackup.gz
+```
+
+- Apply the updated changes:
+
+```bash
+$ cd ~/k8s-dev/workspace/wordpress
+$ kubectl apply -f mysql-cluster.yaml --namespace=wordpress # update the MySQL cluster
+```
+
+Now we can delete the cluster (`$ kubectl -n wordpress delete -f mysql-cluster.yaml`) and re-create
+the cluster (`$ kubectl -n wordpress apply -f mysql-cluster.yaml`) with the initial backup data
+specified, make sure the `db-secret` secret exists.
+
+
+### Wordpress Backup
+
+We will use `Stash` to back up the application data.
+
+
+- Install `Stash` with `helm` (from https://appscode.com/products/stash/0.8.3/setup/install/):
+
+```bash
+$ helm repo add appscode https://charts.appscode.com/stable/
+$ helm repo update
+$ helm search appscode/stash
+NAME            CHART VERSION APP VERSION DESCRIPTION
+appscode/stash  0.8.3    0.8.3  Stash by AppsCode - Backup your Kubernetes Volumes
+
+$ helm install appscode/stash --name stash-operator --version 0.8.3 --namespace kube-system
+```
+
+- Create a secret for the stash to use:
+
+```bash
+$ cd ~/k8s-dev/workspace/wordpress
+$ RESTIC_PASSWORD=changeit # the password for restic to encrypt/decrypt the stored data
+$ kubectl create secret generic gcs-secret \
+    --namespace wordpress \
+    --from-literal=RESTIC_PASSWORD=$RESTIC_PASSWORD \
+    --from-literal=GOOGLE_PROJECT_ID=$PROJECT_ID \
+    --from-file=GOOGLE_SERVICE_ACCOUNT_JSON_KEY=gcs-credentials.json
+```
+
+- Copy the `wordpress-backup-gcs.yaml` file:
+
+```bash
+$ cd ~/k8s-dev/workspace/wordpress
+$ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/wordpress-backup-gcs.yaml .
+```
+
+- Fill in the `bucket` on the copied file:
+
+```yaml
+  backend:
+    gcs:
+      bucket: hoatle-backup # for example, you need to fill in the right bucket here
+```
+
+- Apply the changes:
+
+```bash
+$ cd ~/k8s-dev/workspace/wordpress
+$ kubectl -n wordpress apply -f wordpress-backup-gcs.yaml
+```
+
+- The pre-defined schedule is `@every 3m`, you can adjust this on the file.
+
+- To pause the backup, set `paused: true` on the file and then apply the changes.
+
+- Wait for a while and you can check the backup status with:
+
+```bash
+$ kubectl -n wordpress get repository
+$ kubectl -n wordpress get snapshots
+```
+
+### Wordpress Restore
+
+- First, let's delete the wordpress deployment and the application data:
+
+```bash
+$ helm delete wp-app --purge # delete the wordpress helm chart installation
+release "wp-app" deleted
+$ NFS_DEMO_POD=$(kubectl -n wordpress get pods -l app=nfs-demo -o jsonpath="{.items[0].metadata.name}")
+$ kubectl -n wordpress exec -it $NFS_DEMO_POD bash # to delete existing data
+root@nfs-web-d8br8:/# rm -rf /usr/share/nginx/html/* # delete all the application data
+root@nfs-web-d8br8:/# ls -la /usr/share/nginx/html/ # check that all the application data is deleted
+total 8
+drwxr-xr-x 2 nobody 4294967294 4096 Feb 20 03:48 .
+drwxr-xr-x 3 root   root       4096 Feb  6 08:11 ..
+root@nfs-web-d8br8:/# exit
+exit
+```
+
+- If the `Stash` version is later than 0.9.0, we can just apply the `wordpress-restore-gcs.yaml` file:
+
+```bash
+$ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+$ kubectl -n wordpress apply -f wordpress-restore-gcs.yaml
+$ kubectl -n wordpress get recovery # to check the recovery status
+$ kubectl -n wordpress get pods # to see the running recovery pod
+```
+
+- Otherwise, there is a problem with `Stash` 0.8.x that is very slow to restore data from GCS with
+  Stash, so we need to use the workaround as following instead.
+
+  + Copy the `wordpress-restore-gcs-workaround.yaml` file:
+
+  ```bash
+  $ cd ~/k8s-dev/workspace/wordpress
+  $ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/wordpress-restore-gcs-workaround.yaml .
+  ```
+
+  + Adjust the copied file with the right `RESTIC_REPOSITORY` value and then apply the changes:
+
+  ```yaml
+        env:
+        - name: RESTIC_REPOSITORY
+          value: gs:hoatle-backup:/k8s-local/wordpress/deployment/wp-app-wordpress
+  ```
+
+  ```bash
+  $ cd ~/k8s-dev/workspace/wordpress
+  $ kubectl -n wordpress apply -f wordpress-restore-gcs-workaround.yaml
+  job.batch/wordpress-restore-gcs-workaround created
+  $ kubectl -n wordpress get pods # check that the restore progress is running
+  NAME                                     READY   STATUS    RESTARTS   AGE
+  db-cluster-mysql-0                       4/4     Running   16         1d
+  db-cluster-mysql-1                       4/4     Running   16         1d
+  nfs-web-d8br8                            1/1     Running   5          1d
+  wordpress-restore-gcs-workaround-cldhv   1/1     Running   0          16s
+  $ kubectl -n wordpress logs -f wordpress-restore-gcs-workaround-cldhv # check the restore progress
+  restic snapshots
+  created new cache in /root/.cache/restic
+  ID        Time                 Host              Tags        Paths
+  -------------------------------------------------------------------------------
+  53bc9f28  2019-02-18 17:25:43  wp-app-wordpress              /bitnami/apache
+  5c72659b  2019-02-18 17:25:56  wp-app-wordpress              /bitnami/php
+  3ecd1597  2019-02-18 17:26:17  wp-app-wordpress              /bitnami/wordpress
+  -------------------------------------------------------------------------------
+  3 snapshots
+  time restic restore latest --path /bitnami/apache -t /bitnami
+  restoring <Snapshot 53bc9f28 of [/bitnami/apache] at 2019-02-18 17:25:43.736979485 +0000 UTC by @wp-app-wordpress> to /bitnami
+  real  0m 11.24s
+  user  0m 0.51s
+  sys 0m 0.24s
+  time restic restore latest --path /bitnami/php -t /bitnami
+  restoring <Snapshot 5c72659b of [/bitnami/php] at 2019-02-18 17:25:56.524470773 +0000 UTC by @wp-app-wordpress> to /bitnami
+  real  0m 7.94s
+  user  0m 0.45s
+  sys 0m 0.12s
+  time restic restore latest --path /bitnami/wordpress -t /bitnami
+  restoring <Snapshot 3ecd1597 of [/bitnami/wordpress] at 2019-02-18 17:26:17.209193095 +0000 UTC by @wp-app-wordpress> to /bitnami
+  real  3m 19.17s
+  user  0m 3.12s
+  sys 0m 11.36s
+  ```
+
+- Install the wordpress helm chart then:
+
+  ```bash
+  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ helm upgrade --install wp-app stable/wordpress --namespace=wordpress -f wordpress-override.yaml
+  ```
+
+## Logging
+
+//TODO(@datphan)
+
+
+## Monitoring
+
+//TODO(@phuonglm)
+
+
+## Auto-Scaling
+
+//TODO(@hieptq)
+
+
+## Single Sign-On (SSO) With OpenId Connect
+
+//TODO(@hoatle)
+
+
 ## References
 
 - https://github.com/presslabs/mysql-operator
 - https://github.com/helm/charts/tree/master/stable/wordpress
+- https://appscode.com/products/stash
+- https://heptio.github.io/velero

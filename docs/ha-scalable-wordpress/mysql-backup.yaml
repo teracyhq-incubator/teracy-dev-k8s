@@ -1,0 +1,6 @@
+apiVersion: mysql.presslabs.org/v1alpha1
+kind: MysqlBackup
+metadata:
+  name: db-cluster-backup
+spec:
+  clusterName: db-cluster

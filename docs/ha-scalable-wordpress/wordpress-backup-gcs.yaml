@@ -1,0 +1,36 @@
+apiVersion: stash.appscode.com/v1alpha1
+kind: Restic
+metadata:
+  name: gcs-restic
+spec:
+  selector:
+    matchLabels:
+      app: wp-app-wordpress
+  fileGroups:
+  - path: /bitnami/apache
+    retentionPolicyName: 'keep-last-5'
+  - path: /bitnami/php
+    retentionPolicyName: 'keep-last-5'
+  - path: /bitnami/wordpress
+    retentionPolicyName: 'keep-last-5'
+  backend:
+    gcs:
+      # bucket: hoatle-backup
+      prefix: k8s-local/wordpress
+    storageSecretName: gcs-secret
+  schedule: '@every 3m'
+  paused: false
+  volumeMounts:
+    - mountPath: /bitnami/apache
+      name: wordpress-data
+      subPath: apache
+    - mountPath: /bitnami/wordpress
+      name: wordpress-data
+      subPath: wordpress
+    - mountPath: /bitnami/php
+      name: wordpress-data
+      subPath: php
+  retentionPolicies:
+  - name: 'keep-last-5'
+    keepLast: 5
+    prune: true

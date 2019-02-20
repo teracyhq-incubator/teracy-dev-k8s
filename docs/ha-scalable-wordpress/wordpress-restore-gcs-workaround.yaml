@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wordpress-restore-gcs-workaround
+spec:
+  template:
+    spec:
+      containers:
+      - name: restic
+        image: restic/restic:0.9.4
+        command:
+        - /bin/sh
+        - -c
+        - |
+          cd /tmp/
+          echo $GOOGLE_SERVICE_ACCOUNT_JSON_KEY > gcs.key
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcs.key
+          echo restic snapshots
+          restic snapshots
+          echo time restic restore $RESTIC_RESTORE_SNAPSHOT --path /bitnami/apache -t $RESTIC_RESTORE_PATH
+          time restic restore $RESTIC_RESTORE_SNAPSHOT --path /bitnami/apache -t $RESTIC_RESTORE_PATH
+          echo time restic restore $RESTIC_RESTORE_SNAPSHOT --path /bitnami/php -t $RESTIC_RESTORE_PATH
+          time restic restore $RESTIC_RESTORE_SNAPSHOT --path /bitnami/php -t $RESTIC_RESTORE_PATH
+          echo time restic restore $RESTIC_RESTORE_SNAPSHOT --path /bitnami/wordpress -t $RESTIC_RESTORE_PATH
+          time restic restore $RESTIC_RESTORE_SNAPSHOT --path /bitnami/wordpress -t $RESTIC_RESTORE_PATH
+        envFrom:
+        - secretRef:
+            name: gcs-secret
+        env:
+        - name: RESTIC_REPOSITORY
+          # value: gs:hoatle-backup:/k8s-local/wordpress/deployment/wp-app-wordpress
+        - name: RESTIC_RESTORE_SNAPSHOT
+          value: latest
+        - name: RESTIC_RESTORE_PATH
+          value: /bitnami
+        volumeMounts:
+        - name: data
+          mountPath: "/bitnami"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: wp-app-nfs-pv-claim
+      restartPolicy: Never
+  backoffLimit: 4

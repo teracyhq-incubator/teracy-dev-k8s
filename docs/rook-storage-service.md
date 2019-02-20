@@ -16,7 +16,7 @@ teracy-dev-k8s:
 ```
 
 
-- From https://rook.io/docs/rook/v0.8/helm-operator.html:
+- From https://rook.io/docs/rook/v0.9/helm-operator.html:
 
   + Make sure to identify the `kubelet_flexvolumes_plugins_dir`, it is
     `/var/lib/kubelet/volume-plugins` by default on kubespray.
@@ -31,7 +31,7 @@ teracy-dev-k8s:
 
 ## rook-ceph-block storage class
 
-- Follow https://rook.io/docs/rook/v0.8/block.html
+- Follow https://rook.io/docs/rook/v0.9/ceph-block.html
 
 - When `rook-ceph-block` storageclass is available, it can be used with the [mysql-operator][] cluster,
 for example:
@@ -58,7 +58,7 @@ spec:
 
 ## ReadWriteMany (RWX) access mode volume
 
-- Follow: https://rook.io/docs/rook/master/nfs.html
+- Follow: https://rook.io/docs/rook/v0.9/nfs.html
 
 By using the `rook-ceph-block` storageclass and NFS for `RWX` access mode volume, HA and
 scalablility of pods can be achieved, especially with stateful applications.
