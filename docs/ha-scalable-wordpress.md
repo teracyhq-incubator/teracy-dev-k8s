@@ -528,7 +528,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 
 ## Backup and Restore
 
-We need to backup both the database and the application files regularly and can restore the backups
+We need to back up both the database and the application files regularly and can restore the backups
 any time.
 
 There are many supported backends for the backup, we use Google Cloud Storage (GCS)
@@ -565,10 +565,10 @@ To use GCS, we need to create a bucket and a service account to manage it.
        --display-name "$USERNAME-backup service account"
   ```
 
-- `gcloud iam service-accounts list` should list the created service account.
+- `$ gcloud iam service-accounts list` should list the created service account.
 
 
-- Set the $SERVICE_ACCOUNT_EMAIL variable to match the created email value.
+- Set the `$SERVICE_ACCOUNT_EMAIL` variable to match the created email value.
 
   ```bash
   $ SERVICE_ACCOUNT_EMAIL=$(gcloud iam service-accounts list \
@@ -576,7 +576,7 @@ To use GCS, we need to create a bucket and a service account to manage it.
      --format 'value(email)')
   ```
 
-- Bind the create service account with the appropriate policy to the bucket:
+- Bind the created service account with the appropriate policy to the bucket:
 
   ```bash
   $ gsutil iam ch serviceAccount:$SERVICE_ACCOUNT_EMAIL:objectAdmin gs://$BUCKET
@@ -586,7 +586,7 @@ To use GCS, we need to create a bucket and a service account to manage it.
   for example, read-only access so that others can restore the data from this bucket.
 
 
-- `$ gsutil iam get gs://$BUCKET` should display all the binding.
+- `$ gsutil iam get gs://$BUCKET` should display all the bindings.
 
 - Create a service account key, specifying an output file (`gcs-credentials.json`) in your local
   directory:
@@ -729,7 +729,7 @@ $ cd ~/k8s-dev/workspace/wordpress
 $ kubectl -n wordpress apply -f wordpress-backup-gcs.yaml
 ```
 
-- The pre-defined schedule is `@every 3m`, you can adjust this on the file.
+- The pre-defined schedule is `@every 3m`, you can adjust it in the file.
 
 - To pause the backup, set `paused: true` on the file and then apply the changes.
 
@@ -767,8 +767,8 @@ $ kubectl -n wordpress get recovery # to check the recovery status
 $ kubectl -n wordpress get pods # to see the running recovery pod
 ```
 
-- Otherwise, there is a problem with `Stash` 0.8.x that is very slow to restore data from GCS with
-  Stash, so we need to use the workaround as following instead.
+- Otherwise, if `Stash` 0.8.x is used, there is a problem which is very slow to restore data from GCS
+  with Stash, so we need to use the workaround as the following instead:
 
   + Copy the `wordpress-restore-gcs-workaround.yaml` file:
 
