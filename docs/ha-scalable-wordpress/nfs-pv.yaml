@@ -15,5 +15,5 @@ spec:
     # FIXME: replace <Cluster IP> with the current IP of the NFS server pod.
     # Run the below command to get the current IP address:
     # $ echo NFS server: `kubectl -n rook-nfs get service -l app=rook-nfs -o jsonpath='{.items[0].spec.clusterIP}'`
-    server: 10.233.26.45
+    server: 10.233.53.62 #rook-nfs.rook-nfs.svc.cluster.local
     path: "/nfs-ceph-claim"

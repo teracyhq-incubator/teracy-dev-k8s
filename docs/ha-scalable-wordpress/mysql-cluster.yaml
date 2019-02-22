@@ -6,6 +6,15 @@ spec:
   replicas: 2
   secretName: db-secret
 
+  # backup
+  # backupSecretName: db-cluster-gcs-secret
+  # backupURL: gs://hoatle-backup/k8s-local/wordpress/db-cluster
+  # backupSchedule: "0 0 0 * * *"  # daily
+
+  # restore
+  # initBucketSecretName: db-cluster-gcs-secret
+  # initBucketURI: gs://hoatle-backup/k8s-local/wordpress/db-cluster/db-cluster-2019-02-18T08:53:49.xbackup.gz
+
   ## Specify additional pod specification
   podSpec:
     resources:

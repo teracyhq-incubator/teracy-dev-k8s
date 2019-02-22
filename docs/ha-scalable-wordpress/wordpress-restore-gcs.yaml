@@ -1,0 +1,17 @@
+# use this with stash 0.9 so that restic is upgraded to 0.9.x to have good restore speed
+apiVersion: stash.appscode.com/v1alpha1
+kind: Recovery
+metadata:
+  name: wordpress-restore-gcs
+spec:
+  repository:
+    name: deployment.wp-app-wordpress
+    namespace: wordpress
+  paths:
+  - /bitnami/apache
+  - /bitnami/php
+  - /bitnami/wordpress
+  recoveredVolumes:
+  - mountPath: /bitnami
+    persistentVolumeClaim:
+      claimName: wp-app-nfs-pv-claim
