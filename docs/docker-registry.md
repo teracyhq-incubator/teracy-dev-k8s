@@ -46,7 +46,7 @@ registry-rp2rt         1/1     Running   4          13h
 
 ```bash
 $ cd docs/docker-registry
-$ kubectl apply -f ingress.yaml 
+$ kubectl apply -f ingress.yaml
 ingress.extensions/docker-registry created
 ```
 
@@ -66,7 +66,7 @@ nodes:
             - registry.k8s.local
 ```
 
-- Then `$ vagrant hostmanger` to get the `hosts` file updated in the host and the guest machines.
+- Then `$ vagrant hostmanager` to get the `hosts` file updated in the host and the guest machines.
 
 
 - Make sure to trust the root CA certificate:
@@ -82,26 +82,50 @@ nodes:
   $ sudo service docker restart
   ```
 
+## Verify from your host machine
+
 - To verify that it works from your host machine, make sure `docker` is installed and running:
 
 ```bash
-$ docker pull alpine:latest
+$ docker image pull alpine:latest
+$ docker image tag alpine:latest registry.k8s.local/alpine:latest
 $ docker image push registry.k8s.local/alpine:latest
 The push refers to repository [registry.k8s.local/alpine]
-503e53e365f3: Pushed 
+503e53e365f3: Pushed
 latest: digest: sha256:25b4d910f4b76a63a3b45d0f69a57c34157500faf6087236581eca221c62d214 size: 528
+$ docker image pull registry.k8s.local/alpine:latest
+latest: Pulling from alpine
+Digest: sha256:d05ecd4520cab5d9e5d877595fb0532aadcd6c90f4bbc837bc11679f704c4c82
+Status: Image is up to date for registry.k8s.local/alpine:latest
 ```
+
+- Notes on Windows:
+
+  + Docker for Windows (requires Hyper-V enabled) and the k8s cluster with Virtualbox on Windows
+    (requires Hyper-V disabled) will not work at the same time so we need to run these 2 separately
+    on 2 machines.
+  + We can use registry.xxx.xip.io, registry.xxx.nip.io domains by updating the ingress.yaml file
+    accordingly) or the hosts file to map the registry.k8s.local domain with the remote
+    k8s-cluster's IP address.
+
+
+## Verify from your guest machine
 
 - To verify that it works from your guest machine:
 
 ```bash
 $ cd ~/k8s-dev
 $ vagrant ssh
-$ sudo docker image pull registry.k8s.local/alpine:latest
+$ sudo docker image pull alpine:latest
+$ sudo docker image tag alpine:latest registry.k8s.local/alpine:latest
+$ sudo docker image push registry.k8s.local/alpine:latest
+The push refers to repository [registry.k8s.local/alpine]
+503e53e365f3: Pushed
+latest: digest: sha256:25b4d910f4b76a63a3b45d0f69a57c34157500faf6087236581eca221c62d214 size: 528
+$ docker image pull registry.k8s.local/alpine:latest
 latest: Pulling from alpine
-6c40cc604d8e: Pull complete 
-Digest: sha256:25b4d910f4b76a63a3b45d0f69a57c34157500faf6087236581eca221c62d214
-Status: Downloaded newer image for registry.k8s.local/alpine:latest
+Digest: sha256:d05ecd4520cab5d9e5d877595fb0532aadcd6c90f4bbc837bc11679f704c4c82
+Status: Image is up to date for registry.k8s.local/alpine:latest
 ```
 
 
@@ -113,4 +137,3 @@ Status: Downloaded newer image for registry.k8s.local/alpine:latest
 ## References
 
 - https://github.com/kubernetes-sigs/kubespray/tree/master/roles/kubernetes-apps/registry
-
