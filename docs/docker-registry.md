@@ -5,12 +5,12 @@ This guide will help you to create a docker registry in a k8s cluster.
 
 ## Prerequisites
 
-- a k8s cluster available by following https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
+- a k8s cluster available by following https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use.
 
 - [Rook storage service](rook-storage-service.md) to set up rook-ceph-block storage class by
-  following https://rook.io/docs/rook/v0.8/block.html#provision-storage
+  following https://rook.io/docs/rook/v0.8/block.html#provision-storage.
 
-- [cert-manager](cert-manager.md) to set up a CA cluster issuer
+- [cert-manager](cert-manager.md) to set up a CA cluster issuer.
 
 
 ## Enable docker registry
