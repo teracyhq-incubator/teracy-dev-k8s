@@ -47,19 +47,12 @@ $ openssl rsa -in k8s-local-ca-key.pem -out k8s-local-ca.key
   $ kubectl -n cert-manager create secret tls ca-key-pair --key=k8s-local-ca.key --cert=k8s-local-ca.crt
   ```
 
-  + Create the `workspace/certs/ca-cluster-issuer.yaml` file with the following content:
+  + Create the `ca-cluster-issuer` by executing the following commands:
 
-  ```yaml
-    apiVersion: certmanager.k8s.io/v1alpha1
-    kind: ClusterIssuer
-    metadata:
-      name: ca-cluster-issuer
-    spec:
-      ca:
-        secretName: ca-key-pair
+  ```bash
+  $ cd docs/cert-manager
+  $ kubectl apply -f ca-cluster-issuer.yaml
   ```
-
-  + `$ kubectl create -f ca-cluster-issuer.yaml` to create it.
 
 - After that, `$ kubectl describe clusterissuers.certmanager.k8s.io ca-cluster-issuer` should show
   the following similar output:
