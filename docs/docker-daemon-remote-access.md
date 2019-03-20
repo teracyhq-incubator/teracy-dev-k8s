@@ -14,6 +14,8 @@ file with the following configuration:
 teracy-dev-k8s:
   ansible:
     host_vars:
+      # to enable vanilla docker containers to access external internet
+      docker_iptables_enabled: "true"
       # workaround for TCP remote access to docker daemon from the host to the VM
       docker_log_opts: "-H fd:// -H tcp://0.0.0.0:2375 --log-opt max-size=50m --log-opt max-file=5"
 ```
