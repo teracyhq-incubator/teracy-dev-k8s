@@ -28,7 +28,7 @@ teracy-dev-k8s:
       registry_disk_size: "5Gi"
 ```
 
-- Then `$ vagrant reload --provision` to get it the docker registry installed.
+- Then `$ vagrant reload --provision` to get the docker registry installed.
 
 - To confirm, you should see the following similar output:
 
@@ -102,7 +102,7 @@ Status: Image is up to date for registry.k8s.local/alpine:latest
 - Notes on Windows:
 
   + Docker for Windows (requires Hyper-V enabled) and the k8s cluster with Virtualbox on Windows
-    (requires Hyper-V disabled) will not work at the same time so we need to run these 2 separately
+    (requires Hyper-V disabled) will not work at the same time so we need to run them separately
     on 2 machines.
   + We can use registry.xxx.xip.io, registry.xxx.nip.io domains by updating the ingress.yaml file
     accordingly) or the hosts file to map the registry.k8s.local domain with the remote
