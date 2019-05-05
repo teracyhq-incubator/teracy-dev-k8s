@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: wp-app-nfs-pv-claim
 spec:
-  storageClassName: rook-nfs-sc
+  storageClassName: rook-nfs-wordpress
   accessModes:
     - ReadWriteMany
   resources:

@@ -3,16 +3,13 @@ kind: Namespace
 metadata:
   name:  rook-nfs
 ---
-# A rook ceph cluster must be running
-# Create a rook ceph cluster using examples in rook/cluster/examples/kubernetes/ceph
-# Refer to https://rook.io/docs/rook/master/ceph-quickstart.html for a quick rook cluster setup
+# A default storageclass must be present
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-ceph-claim
+  name: nfs-wordpress
   namespace: rook-nfs
 spec:
-  storageClassName: rook-ceph-block
   accessModes:
   - ReadWriteOnce
   resources:
@@ -22,17 +19,19 @@ spec:
 apiVersion: nfs.rook.io/v1alpha1
 kind: NFSServer
 metadata:
-  name: rook-nfs
+  name: rook-nfs-wordpress
   namespace: rook-nfs
 spec:
+  serviceAccountName: rook-nfs
   replicas: 1
   exports:
-  - name: nfs-share
+  - name: wordpress
     server:
       accessMode: ReadWrite
       squash: "none"
     # A Persistent Volume Claim must be created before creating NFS CRD instance.
-    # Create a Ceph cluster for using this example
-    # Create a ceph PVC after creating the rook ceph cluster using ceph-pvc.yaml
     persistentVolumeClaim:
-      claimName: nfs-ceph-claim
+      claimName: nfs-wordpress
+  # A key/value list of annotations
+  annotations:
+  #  key: value
