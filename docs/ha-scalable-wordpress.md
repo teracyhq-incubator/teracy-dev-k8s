@@ -7,8 +7,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 
 - a k8s cluster available by following https://github.com/teracyhq-incubator/teracy-dev-entry-k8s#how-to-use
 
-- [Rook storage service](rook-storage-service.md) to set up rook-ceph-block storage class by
-  following https://rook.io/docs/rook/v0.8/block.html#provision-storage
+- [Rook storage service](rook-storage-service.md) to set up rook-ceph-block as the default storage class
 
 - [cert-manager](cert-manager.md) to set up a CA cluster issuer
 
@@ -18,7 +17,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Deploy the operator:
 
   ```bash
-  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl create namespace mysql-operator # create if not exists yet
   $ helm repo add presslabs https://presslabs.github.io/charts
   $ helm upgrade --install mysql-operator presslabs/mysql-operator --namespace=mysql-operator -f mysql-operator-override.yaml
@@ -108,7 +107,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Create a MySQL cluster, for example:
 
   ```bash
-  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl create namespace wordpress # create if not exists yet
   $ kubectl apply -f mysql-secret.yaml --namespace=wordpress # create secret for the mysql-cluster.yaml
   $ kubectl apply -f mysql-cluster.yaml --namespace=wordpress # create a MySQL cluster
@@ -188,18 +187,18 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Create a `PersistentVolumeClaim` with `ReadWriteMany` (RWX) access modes so that we can deploy multiple
   WordPress containers sharing the same file system to access the shared resources:
 
-  + Deploy NFS operator:
+  + Deploy a NFS operator if not yet:
 
     ```bash
-    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ cd teracy-dev-k8s/docs/rook
     $ kubectl apply -f nfs-operator.yaml
     ```
 
   + Create a Rook `NFSServer`:
 
     ```bash
-    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
-    $ kubectl apply -f nfs-ceph.yaml
+    $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ kubectl apply -f nfs.yaml
     ```
 
     You should see the following output:
@@ -216,48 +215,18 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
     rook-nfs-0   1/1     Running   0          2m
     ```
 
-  + Create a NFS volume:
-
-    Find the NFS server address:
-
-    ```bash
-    $ echo NFS server: `kubectl -n rook-nfs get service -l app=rook-nfs -o jsonpath='{.items[0].spec.clusterIP}'`
-    NFS server: 10.233.26.45
-    ```
-
-    Copy the `nfs-pv.yaml` file into the `wordpress` directory to update:
-
-    ```bash
-    $ cd ~/k8s-dev/workspace
-    $ mkdir -p wordpress && cd wordpress
-    $ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/nfs-pv.yaml .
-    ```
-
-    Fill in the value `10.233.26.45`, for example, from the ouput above in to the
-    `~/k8s-dev/workspace/nfs-pv.yaml` file and execute the following command:
+  + Create a NFS storage class by executing the following command:
 
     ```bash
     $ cd ~/k8s-dev/workspace/wordpress
-    $ kubectl apply -f nfs-pv.yaml
-    persistentvolume/rook-nfs-pv created
-    ```
-
-    `$ kubectl get pv` should show the created `rook-nfs-pv` persistent volume:
-
-    ```bash
-    $ kubectl get pv
-    NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM                                               STORAGECLASS      REASON   AGE
-    pvc-2201adbc-ff05-11e8-abfb-08002781145e   1Gi        RWO            Delete           Bound       wordpress/data-db-cluster-mysql-0                   rook-ceph-block            39m
-    pvc-3ac22548-ff05-11e8-abfb-08002781145e   1Gi        RWO            Delete           Bound       wordpress/data-db-cluster-mysql-1                   rook-ceph-block            38m
-    pvc-b6ed2cf1-ff08-11e8-abfb-08002781145e   2Gi        RWO            Delete           Bound       rook-nfs/nfs-ceph-claim                             rook-ceph-block            13m
-    pvc-dab1fa69-ff03-11e8-abfb-08002781145e   1Gi        RWO            Delete           Bound       mysql-operator/data-mysql-operator-orchestrator-0   rook-ceph-block            48m
-    rook-nfs-pv                                2Gi        RWX            Retain           Available                                                       rook-nfs-sc                27s
+    $ kubectl apply -f nfs-storageclass.yaml
+    storageclass.storage.k8s.io/rook-nfs-wordpress created
     ```
 
   + Create a `PersistentVolumeClaim` with `ReadWriteMany` (RWX) access modes:
 
     ```bash
-    $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+    $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
     $ kubectl apply -f wordpress-pvc.yaml --namespace=wordpress
     persistentvolumeclaim/wp-app-nfs-pv-claim created
     ```
@@ -266,10 +235,10 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 
     ```bash
     $ kubectl -n wordpress get pvc
-    NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS      AGE
-    data-db-cluster-mysql-0   Bound    pvc-2201adbc-ff05-11e8-abfb-08002781145e   1Gi        RWO            rook-ceph-block   43m
-    data-db-cluster-mysql-1   Bound    pvc-3ac22548-ff05-11e8-abfb-08002781145e   1Gi        RWO            rook-ceph-block   42m
-    wp-app-nfs-pv-claim       Bound    rook-nfs-pv                                2Gi        RWX            rook-nfs-sc       20s
+    NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS       AGE
+    data-db-cluster-mysql-0   Bound    pvc-2201adbc-ff05-11e8-abfb-08002781145e   1Gi        RWO            rook-ceph-block    43m
+    data-db-cluster-mysql-1   Bound    pvc-3ac22548-ff05-11e8-abfb-08002781145e   1Gi        RWO            rook-ceph-block    42m
+    wp-app-nfs-pv-claim       Bound    pvc-7cd83829-6f64-11e9-96d8-080027c2be11   2Gi        RWX            rook-nfs-wordpress 20s
     ```
 
     Test the created PVC:
@@ -317,7 +286,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
   Create a TLS certificate:
 
   ```bash
-  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl apply -f certificate.yaml --namespace=wordpress
   certificate.certmanager.k8s.io/wordpress-k8s-local created
   ```
@@ -372,7 +341,7 @@ Follow this guide to set up a high availability (HA) and scalable WordPress depl
 - Deploy the WordPress application:
 
   ```bash
-  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
   $ helm upgrade --install wp-app stable/wordpress --namespace=wordpress -f wordpress-override.yaml
   ```
 
@@ -617,7 +586,7 @@ To use GCS, we need to create a bucket and a service account to manage it.
 
   ```bash
   $ cd ~/k8s-dev/workspace/wordpress
-  $ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/mysql-cluster.yaml .
+  $ cp teracy-dev-k8s/docs/ha-scalable-wordpress/mysql-cluster.yaml .
   ```
 
 - Fill in the `mysql-cluster.yaml` file with the `backupSecretName` and `backupURL`, for example:
@@ -641,7 +610,7 @@ To use GCS, we need to create a bucket and a service account to manage it.
 - Create the database backup:
 
   ```bash
-  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
   $ kubectl apply -f mysql-backup.yaml --namespace=wordpress
   ```
 
@@ -711,7 +680,7 @@ $ kubectl create secret generic gcs-secret \
 
 ```bash
 $ cd ~/k8s-dev/workspace/wordpress
-$ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/wordpress-backup-gcs.yaml .
+$ cp teracy-dev-k8s/docs/ha-scalable-wordpress/wordpress-backup-gcs.yaml .
 ```
 
 - Fill in the `bucket` on the copied file:
@@ -761,7 +730,7 @@ exit
 - If the `Stash` version is later than 0.9.0, we can just apply the `wordpress-restore-gcs.yaml` file:
 
 ```bash
-$ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+$ cd teracy-dev-k8s/docs/ha-scalable-wordpress
 $ kubectl -n wordpress apply -f wordpress-restore-gcs.yaml
 $ kubectl -n wordpress get recovery # to check the recovery status
 $ kubectl -n wordpress get pods # to see the running recovery pod
@@ -774,7 +743,7 @@ $ kubectl -n wordpress get pods # to see the running recovery pod
 
   ```bash
   $ cd ~/k8s-dev/workspace/wordpress
-  $ cp ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress/wordpress-restore-gcs-workaround.yaml .
+  $ cp teracy-dev-k8s/docs/ha-scalable-wordpress/wordpress-restore-gcs-workaround.yaml .
   ```
 
   + Adjust the copied file with the right `RESTIC_REPOSITORY` value and then apply the changes:
@@ -825,7 +794,7 @@ $ kubectl -n wordpress get pods # to see the running recovery pod
 - Install the wordpress helm chart then:
 
   ```bash
-  $ cd ~/k8s-dev/extensions/teracy-dev-k8s/docs/ha-scalable-wordpress
+  $ cd teracy-dev-k8s/docs/ha-scalable-wordpress
   $ helm upgrade --install wp-app stable/wordpress --namespace=wordpress -f wordpress-override.yaml
   ```
 

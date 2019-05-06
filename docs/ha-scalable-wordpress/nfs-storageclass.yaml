@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  labels:
+    app: rook-nfs
+  name: rook-nfs-wordpress
+parameters:
+  exportName: wordpress
+  nfsServerName: rook-nfs-wordpress
+  nfsServerNamespace: rook-nfs
+provisioner: rook.io/nfs-provisioner
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
