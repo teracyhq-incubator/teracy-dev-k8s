@@ -1,4 +1,4 @@
-This page shows you how to install kubectl and helm on macOS, Linux (Ubuntu) and Windows.
+This page shows you how to install kubectl and helm on macOS, Linux (Ubuntu) and Windows. Also this guide instructs you the way to enable shell autocompletion.
 
 ___
 
