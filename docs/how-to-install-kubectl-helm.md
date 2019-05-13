@@ -1,43 +1,42 @@
 This page shows you how to install kubectl and helm on macOS, Linux (Ubuntu) and Windows. Also this guide instructs you the way to enable shell autocompletion.
 
-___
+This guide consists of two main sections:
+- [Kubectl](#kubectl)
+	+ [Installing / Uninstalling kubeclt on macOS](#kubectl_mac_os)
+	+ [Installing / Uninstalling kubeclt on Linux(Ubuntu)](#kubectl_linux)
+	+ [Installing / Uninstalling kubeclt on Windows](#kubectl_windows)
 
-# Menu
+- [Helm](#helm)
+	+ [Installing / Uninstalling helm on macOS](#helm_mac_os)
+	+ [Installing / Uninstalling helm on Linux(Ubuntu)](#helm_linux)
+	+ [Installing / Uninstalling helm on Windows](#helm_windows)
+	
+# Requirements:
+- Homebrew available on macOS
+- Chocolatey available on Windows
+- At least ubuntu 16.04
 
-- Install `kubectl` for each OS you need:
-	+ [Mac Os](#kubectl_mac_os)
-	+ [Linux(Ubuntu)](#kubectl_linux)
-	+ [Windows](#kubectl_windows)
-
-- Install `helm` for each OS you need:
-	+ [Mac Os](#helm_mac_os)
-	+ [Linux(Ubuntu)](#helm_linux)
-	+ [Windows](#helm_windows)
-
-# Kubectl
+# <a name="kubectl"></a>Kubectl
 ``kubectl`` is the Kubernetes command line tool, which can be used to deploy settings to the cluster.
 In this section, you should know how to install kubectl.
 
-## <a name="kubectl_mac_os"></a>Mac Os
+## <a name="kubectl_mac_os"></a>Installing / Uninstalling kubeclt on macOS
 
-### Install
+### Installing kubeclt on macOS
 
-- Latest version:
+- Install kubeclt with `homebrew`:
 
-	+ follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-macos.
+	+ Follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-macos to install the latest version.
 
-- Downgrading or upgrading version:
-
-	+ If you have ever installed the desired version with `homebrew`, you can swich to that version.
+- Switch to a version which you already installed with `homebrew`
 
 	```bash
 	$ brew info kubernetes-cli
 	$ brew switch kubernetes-cli 1.12.0 # example downgrade to version 1.12.0
 	```
+- Downgrade kubeclt with `homebrew`: See the details at https://www.benpickles.com/articles/72-downgrading-kubectl-with-homebrew to downgrade with `homebrew`.
 
-	+ See the details at https://www.benpickles.com/articles/72-downgrading-kubectl-with-homebrew to downgrade with `homebrew`.
-
-	+ specific version with `curl`
+- Install a kubeclt specific version with `curl`:
 
 	For example, to download version v1.12.0 on macOS, type:
 
@@ -53,21 +52,21 @@ In this section, you should know how to install kubectl.
 	$ kubectl version
 	```
 
-### Uninstall
+### Uninstalling kubeclt on macOS
 
-- Uninstall with `Homebrew`, type:
+- Uninstall with `Homebrew`:
 
 	```bash
 	$ brew uninstall kubernetes-cli
 	```
 
-	if you want to uninstall all version you have ever installed, type:
+	If you want to uninstall all versions you have ever installed, run the command below:
 
 	```bash
 	$ brew uninstall --force kubernetes-cli
 	```
 
-- Uninstall from `rm` command (if you install with `kubectl` binary using `curl` ), type:
+- Uninstall with the `rm` command (if you installed `kubectl` with `curl` ):
 
 	```bash
 	$ rm -rf /usr/local/bin/kubectl # may be you need to run command with `sudo`
@@ -84,9 +83,9 @@ $ brew install bash-completion
 $ brew install bash-completion@2
 ```
 
-If you installed `kubectl` using the Homebrew instructions then `kubectl` completion should start working immediately.
+If you installed `kubectl` using the Homebrew instructions, then `kubectl` completion should start working immediately.
 
-> If bash-completion in Homebrew not work, please add to `~/.bash_profile`:
+If bash-completion in Homebrew does not work, please add to `~/.bash_profile`:
 
 ```bash
 $ if [ -d $(brew --prefix)/etc/bash_completion.d ]; then
@@ -100,15 +99,15 @@ If you have installed `kubectl` manually, you need to add `kubectl` autocompleti
 $ kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
 ```
 
-## <a name="kubectl_linux"></a>Linux (Ubuntu)
+## <a name="kubectl_linux"></a>Installing / Uninstalling kubectl on Linux (Ubuntu)
 
-### Install
+### Installing kubectl on Linux
 
-- Latest version
+- Install the latest version:
 
-	+ follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux.
+	+ Follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-linux.
 
-- Downgrading or upgrading version:
+- Install a specific version:
 
 	```bash
 	$ snap remove kubectl #remove the installed version
@@ -122,9 +121,9 @@ $ kubectl completion bash > $(brew --prefix)/etc/bash_completion.d/kubectl
 	$ kubectl version
 	```
 
-### Uninstall
+### Uninstalling kubectl on Linux
 
-Uninstall, please type:
+To uninstall the kubectl on Linux, type the command:
 
 ```bash
 $ sudo apt-get remove -y kubectl
@@ -132,15 +131,15 @@ $ sudo apt-get remove -y kubectl
 
 ### Enabling shell autocompletion
 
-If bash-completion is not installed on Linux, please install the `bash-completion` package via your distribution's package manager.
+If bash-completion is not installed on Linux yet, please install the `bash-completion` package via your distribution's package manager.
 
-Load the kubectl completion code for bash into the current shell
+- Load the kubectl completion code for bash into the current shell:
 
 ```bash
 $ source <(kubectl completion bash)
 ```
 
-Write bash completion code to a file and source if from `~/.bash_profile`:
+- Write the bash completion code to a file and source it from `~/.bash_profile`:
 
 ```bash
 $ kubectl completion bash > ~/.kube/completion.bash.inc
@@ -148,25 +147,22 @@ $ printf "source '$HOME/.kube/completion.bash.inc'" >> $HOME/.bash_profile
 $ source $HOME/.bash_profile
 ```
 
-## <a name="kubectl_windows"></a>Windows
+## <a name="kubectl_windows"></a>Installing / Unistalling kubectl on Windows
 
 Requirement: **Open `git-bash` with `Run as Administrator`**.
 
-### Install
+### Installing kubectl on Windows
 
-- Latest version:
+- Install the latest version:
 
-	+ follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-windows.
+	+ Follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-windows.
 
-- Downgrading or upgrading version:
-
-	+ to upgrade
+- Upgrade kubectl to the newer version:
 
 	```
 	$ choco upgrade kubernetes-cli -y
 	```
-
-	+ to downgrade
+- Downgrade into an older version, for example, version 1.11:
 
 	```
 	$ choco install kubernetes-cli --version 1.11 -y --allow-downgrade
@@ -178,7 +174,7 @@ Requirement: **Open `git-bash` with `Run as Administrator`**.
 	$ kubectl version
 	```
 
-### Uninstall
+### Uninstall kubectl on Windows
 
 - Uninstall with `chocolatey`, type:
 
@@ -186,7 +182,7 @@ Requirement: **Open `git-bash` with `Run as Administrator`**.
 	$ choco uninstall -y kubernetes-cli
 	```
 
-- Uninstall from `rm` command (if you install with kubectl binary using `curl` ), type:
+- Uninstall with `rm` command (if you installed kubectl with `curl` ), type:
 
 	```bash
 	$ rm -rf /usr/bin/kubectl
@@ -194,13 +190,13 @@ Requirement: **Open `git-bash` with `Run as Administrator`**.
 
 ### Enabling shell autocompletion
 
-To add kubectl autocompletion to your current shell, run:
+To add kubectl autocompletion to your current shell, run the command:
 
 ```bash
 $ source <(kubectl completion bash).
 ```
 
-To add kubectl autocompletion to your profile, so it is automatically loaded in future shells run:
+To add kubectl autocompletion to your profile so it is automatically loaded in future shells, run the command:
 
 ```bash
 echo "source <(kubectl completion bash)" >> ~/.bashrc # or ~/.bash_profile
@@ -210,34 +206,43 @@ Re-run your current shell with `Run As Administrator` to enable kubectl autocomp
 
 > Note: **kubectl autocompletion will only work with `kubectl`, not `kubectl.exe`**.
 
-# Helm
+# <a name="helm">Helm[Helm]
 ``helm`` is a package management tool for Kubernetes, and is used to deploy charts. In this section, you should know how to install helm.
 
-## <a name="helm_mac_os"></a>Mac Os
+## <a name="helm_mac_os"></a>Installing / Uninstall helm on macOS
 
-### Install
+### Installing helm on macOS
 
-- Latest version:
-
-	+ If you are using [Homebrew](https://brew.sh/) package manager, you can install latest `helm` version with Homebrew.
-
-	Run the installation command:
+- Install the latest version with `[homebrew]`(https://brew.sh/):
 
 	```bash
 	$ brew install kubernetes-helm
 	$ brew link --overwrite kubernetes-helm # to ensure override new helm version to path
 	```
 
-- Specific version:
-
-	+ If you have ever installed the desired version with `homebrew`, you can downgrade to that version.
-
+- Switch to any version which you have already installed with `homebrew`:
+	
 	```bash
 	$ brew info kubernetes-helm
 	$ brew switch kubernetes-helm 2.11.0 # example downgrade to version 2.11.0
 	```
+	
+- Or install a specific version with `homebrew` by following the steps below, to have more details, see https://github.com/helm/helm/issues/4547#issuecomment-423312200.
 
-	+ Install a specific version [from the binary release](https://docs.helm.sh/using_helm/#from-the-binary-releases)
+ 	+ Click https://github.com/Homebrew/homebrew-core/search?q=kubernetes-helm&type=Commits to search for the correct `kubernetes-helm.rb` file for the version, for example, v2.9.1.
+	+ Click the commit hash button (78d6425)
+	+ Click the "View" button
+	+ Click the "Raw" button
+	+ Copy the url: https://raw.githubusercontent.com/Homebrew/homebrew-core/78d64252f30a12b6f4b3ce29686ab5e262eea812/Formula/kubernetes-helm.rb
+	+ Run the commands below:
+
+	```
+	$ brew unlink kubernetes-helm
+	$ brew install https://raw.githubusercontent.com/Homebrew/homebrew-	core/78d64252f30a12b6f4b3ce29686ab5e262eea812/Formula/kubernetes-helm.rb
+	$ brew switch kubernetes-helm 2.9.1
+	```
+
+- Install a specific version [from the binary release](https://docs.helm.sh/using_helm/#from-the-binary-releases).
 
 - Test `kubectl` version you installed:
 
@@ -245,21 +250,21 @@ Re-run your current shell with `Run As Administrator` to enable kubectl autocomp
 	$ kubectl version
 	```
 
-### Uninstall
+### Uninstalling helm on macOS
 
-- Uninstall with `Homebrew`, type:
+- Uninstall helm with `Homebrew`, type the command:
 
 	```bash
 	$ brew uninstall kubernetes-helm
 	```
 
-	if you want to uninstall all version you have ever installed, type:
+	If you want to uninstall all versions you have ever installed, type the command:
 
 	```bash
 	$ brew uninstall --force kubernetes-helm
 	```
 
-- Uninstall from `rm` command, type:
+- Uninstall helm with the `rm` command, type the command:
 
 	```bash
 	$ rm -rf /usr/local/bin/helm # may be you need to run command with `sudo`
@@ -267,7 +272,7 @@ Re-run your current shell with `Run As Administrator` to enable kubectl autocomp
 
 ### Enabling shell autocompletion
 
-On macOS, you will need to install `bash-completion` support via Homebrew first:
+On macOS, you will need to install `bash-completion` support via `Homebrew` first:
 
 ```bash
 ## If running Bash 3.2 included with macOS
@@ -276,9 +281,9 @@ $ brew install bash-completion
 $ brew install bash-completion@2
 ```
 
-If you installed `helm` using the Homebrew instructions then `helm` completion should start working immediately.
+If you installed `helm` using the Homebrew instructions, then `helm` completion should work immediately.
 
-> If bash-completion in Homebrew not work, please add to `~/.bash_profile`:
+If bash-completion in Homebrew does not work, please add to `~/.bash_profile`:
 
 ```bash
 $ if [ -d $(brew --prefix)/etc/bash_completion.d ]; then
@@ -292,25 +297,17 @@ If you have installed `helm` manually, you need to add `helm` autocompletion to 
 $ helm completion bash > $(brew --prefix)/etc/bash_completion.d/helm
 ```
 
-## <a name="helm_linux"></a>Linux (Ubuntu)
+## <a name="helm_linux"></a>Installing / Uninstalling helm on Linux (Ubuntu)
 
-### Install
+### Installing helm on Linux
 
-- Latest version
-
-	+ Install `helm` binary using `snap`.
-
-	Run the installation command:
+- Install the latest version with `snap`:
 
 	```bash
 	$ sudo snap install helm --classic
 	```
 
-- Specific version:
-
-	+ Install a specific version:
-
-	For example, to downgrade to version v2.11.0, type:
+- Install a specific version, for example, you want to install an older version v2.11.0:
 
 	```bash
 	$ curl -Lo /tmp/helm-linux-amd64.tar.gz https://kubernetes-helm.storage.googleapis.com/helm-v2.11.0-linux-amd64.tar.gz
@@ -324,7 +321,7 @@ $ helm completion bash > $(brew --prefix)/etc/bash_completion.d/helm
 	$ helm version
 	```
 
-### Uninstall
+### Uninstallong helm on Linux
 
 - Uninstall with `snap`, please type:
 
@@ -336,36 +333,32 @@ $ helm completion bash > $(brew --prefix)/etc/bash_completion.d/helm
 
 If bash-completion is not installed on Linux, please install the `bash-completion` package via your distribution's package manager.
 
-Load the kubectl completion code for bash into the current shell
+- Load the kubectl completion code for bash into the current shell:
 
 ```bash
 $ source <(helm completion bash)
 ```
 
-Write bash completion code to a file and source if from `~/.bash_profile`:
+- Write bash completion code to a file and source if from `~/.bash_profile`:
 
 ```bash
 $ echo "source <(helm completion bash)" >> ~/.bash_profile
 $ source ~/.bash_profile
 ```
 
-## <a name="helm_windows"></a>Windows
+## <a name="helm_windows"></a>Installing / Uninstalling helm on Windows
 
 Requirement: **Open `git-bash` with `Run as Administrator`**.
 
-### Install
+### Installing helm on Windows:
 
-- Latest version:
-
-	If you are using [Chocolatey](https://chocolatey.org/) package manager, you can install latest `helm` version with `chocolatey`.
-
-	Run the installation command:
+- Install the latest version with [Chocolatey](https://chocolatey.org/):
 
 	```bash
 	$ choco install -y kubernetes-helm
 	```
 
-- Specific version:
+- Install a specific version, for example, version 2.11.0:
 
 	+ Please check version you need in [Chocolatey Packages](https://chocolatey.org/packages/kubernetes-cli), then type:
 
@@ -379,7 +372,7 @@ Requirement: **Open `git-bash` with `Run as Administrator`**.
 	$ helm version
 	```
 
-### Uninstall
+### Uninstalling helm on Windows:
 
 - Uninstall with `chocolatey`, type:
 
@@ -389,13 +382,13 @@ Requirement: **Open `git-bash` with `Run as Administrator`**.
 
 ### Enabling shell autocompletion
 
-To add `helm` autocompletion to your current shell, run:
+To add `helm` autocompletion to your current shell, run the command:
 
 ```bash
 $ source <(helm completion bash).
 ```
 
-To add `helm` autocompletion to your profile, so it is automatically loaded in future shells run:
+To add `helm` autocompletion to your profile so it is automatically loaded in future shells, run the command:
 
 ```bash
 echo "source <(helm completion bash)" >> ~/.bashrc # or ~/.bash_profile
