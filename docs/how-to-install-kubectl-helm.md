@@ -2,9 +2,9 @@ This page shows you how to install kubectl and helm on macOS, Linux (Ubuntu) and
 
 This guide consists of two main sections:
 - [Kubectl](#kubectl)
-	+ [Installing / Uninstalling kubeclt on macOS](#kubectl_mac_os)
-	+ [Installing / Uninstalling kubeclt on Linux(Ubuntu)](#kubectl_linux)
-	+ [Installing / Uninstalling kubeclt on Windows](#kubectl_windows)
+	+ [Installing / Uninstalling kubectl on macOS](#kubectl_mac_os)
+	+ [Installing / Uninstalling kubectl on Linux(Ubuntu)](#kubectl_linux)
+	+ [Installing / Uninstalling kubectl on Windows](#kubectl_windows)
 
 - [Helm](#helm)
 	+ [Installing / Uninstalling helm on macOS](#helm_mac_os)
@@ -14,17 +14,17 @@ This guide consists of two main sections:
 # Requirements:
 - Homebrew available on macOS
 - Chocolatey available on Windows
-- At least ubuntu 16.04
+- At least Ubuntu 16.04
 
 # <a name="kubectl"></a>Kubectl
 ``kubectl`` is the Kubernetes command line tool, which can be used to deploy settings to the cluster.
 In this section, you should know how to install kubectl.
 
-## <a name="kubectl_mac_os"></a>Installing / Uninstalling kubeclt on macOS
+## <a name="kubectl_mac_os"></a>Installing / Uninstalling kubectl on macOS
 
-### Installing kubeclt on macOS
+### Installing kubectl on macOS
 
-- Install kubeclt with `homebrew`:
+- Install kubectl with `homebrew`:
 
 	+ Follow the official documentation at https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-on-macos to install the latest version.
 
@@ -34,9 +34,9 @@ In this section, you should know how to install kubectl.
 	$ brew info kubernetes-cli
 	$ brew switch kubernetes-cli 1.12.0 # example downgrade to version 1.12.0
 	```
-- Downgrade kubeclt with `homebrew`: See the details at https://www.benpickles.com/articles/72-downgrading-kubectl-with-homebrew to downgrade with `homebrew`.
+- Downgrade kubectl with `homebrew`: See the details at https://www.benpickles.com/articles/72-downgrading-kubectl-with-homebrew to downgrade with `homebrew`.
 
-- Install a kubeclt specific version with `curl`:
+- Install a kubectl specific version with `curl`:
 
 	For example, to download version v1.12.0 on macOS, type:
 
@@ -52,7 +52,7 @@ In this section, you should know how to install kubectl.
 	$ kubectl version
 	```
 
-### Uninstalling kubeclt on macOS
+### Uninstalling kubectl on macOS
 
 - Uninstall with `Homebrew`:
 
@@ -206,7 +206,7 @@ Re-run your current shell with `Run As Administrator` to enable kubectl autocomp
 
 > Note: **kubectl autocompletion will only work with `kubectl`, not `kubectl.exe`**.
 
-# <a name="helm">Helm[Helm]
+# <a name="helm">Helm
 ``helm`` is a package management tool for Kubernetes, and is used to deploy charts. In this section, you should know how to install helm.
 
 ## <a name="helm_mac_os"></a>Installing / Uninstall helm on macOS
@@ -244,10 +244,10 @@ Re-run your current shell with `Run As Administrator` to enable kubectl autocomp
 
 - Install a specific version [from the binary release](https://docs.helm.sh/using_helm/#from-the-binary-releases).
 
-- Test `kubectl` version you installed:
+- Test `helm` version you installed:
 
 	```bash
-	$ kubectl version
+	$ helm version
 	```
 
 ### Uninstalling helm on macOS
