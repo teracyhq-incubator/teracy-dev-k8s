@@ -25,7 +25,7 @@ teracy-dev-k8s:
     mode: guest # or host to run ansible from the host instead of from the guest
     playbook_path: cluster.yml # relative within the kubespray repo or /cluster.yml is relative to the Vagrantfile when appending / at the beginning as convention
     # you can add any host_vars here with key-value to override inventory
-    version: # ansible guest version
+    version: 2.7.10 # kubespray is buggy on ansible 2.8: https://github.com/kubernetes-sigs/kubespray/issues/3985
     host_vars:
       kube_network_plugin: flannel
       kube_network_plugin_multus: "False"
@@ -38,6 +38,9 @@ teracy-dev-k8s:
       kube_proxy_mode: iptables
       kube_service_addresses: 10.96.0.0/16
       kube_pods_subnet: 10.244.0.0/16
+    # added @since v0.4.0
+    extra_vars:
+      ansible_become_pass: "vagrant"
 
   num_instances: 1
   instance_name_prefix: "k8s"
