@@ -3,6 +3,13 @@ variables:
   k8s_coreos_alpha_box_url: https://storage.googleapis.com/alpha.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json
   k8s_coreos_beta_box_url: https://storage.googleapis.com/beta.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json
 
+
+teracy-dev-certs:
+  ca:
+    pkcs1_generated: true # to generate the PKCS#1 *-ca.key from the *-ca-key.pem file
+  cert:
+    generated: false
+
 # k8s config backport from kubespray https://github.com/kubernetes-incubator/kubespray/blob/master/Vagrantfile#L26
 teracy-dev-k8s:
   # configurable here
