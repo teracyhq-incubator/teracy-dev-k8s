@@ -39,6 +39,7 @@ teracy-dev-k8s:
       kube_proxy_mode: iptables
       kube_service_addresses: 10.96.0.0/16
       kube_pods_subnet: 10.244.0.0/16
+      metrics_server_enabled: true
       # Directory where credentials will be stored
       # moved out of inventory_dir to avoid host unreachable problem
       credentials_dir: "/vagrant/workspace/credentials"
@@ -50,7 +51,7 @@ teracy-dev-k8s:
   instance_name_prefix: "k8s"
   vm_gui: false
   vm_memory: 2048
-  vm_cpus: 2
+  vm_cpus: 4
   os: ubuntu # must match one of the _id from supported_oses
   supported_oses:
     # ubuntu
