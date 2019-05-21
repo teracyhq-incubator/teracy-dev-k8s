@@ -100,6 +100,7 @@ module TeracyDevK8s
         # All nodes are kube nodes
         kube_node_instances = num_instances
         ansible_host_vars = k8s_config['ansible']['host_vars']
+        ansible_extra_vars = k8s_config['ansible']['extra_vars']
         local_release_dir = k8s_config['local_release_dir']
         host_vars = {}
         box = supported_os['box']
@@ -185,6 +186,7 @@ module TeracyDevK8s
                 "become" => true,
                 "limit" => "all",
                 "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
+                "extra_vars" => ansible_extra_vars,
                 "host_vars" => host_vars,
                 "verbose" => k8s_config['ansible']['verbose'],
                 "groups" => {
@@ -198,6 +200,7 @@ module TeracyDevK8s
 
               if TeracyDev::Util.exist?(k8s_config['ansible']['version'])
                 provisioner['version'] = k8s_config['ansible']['version']
+                provisioner['install_mode'] = 'pip'
               end
 
               node["provisioners"] = [provisioner_k8s_requirement, provisioner]
@@ -224,7 +227,8 @@ module TeracyDevK8s
                 "become" => true,
                 "limit" => "all",
                 "host_key_checking" => false,
-                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache", "--ask-become-pass"],
+                "raw_arguments" => ["--forks=#{num_instances}", "--flush-cache"],
+                "extra_vars" => ansible_extra_vars,
                 "host_vars" => host_vars,
                 "verbose" => k8s_config['ansible']['verbose'],
                 "groups" => {
