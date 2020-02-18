@@ -19,13 +19,13 @@ teracy-dev-k8s:
       git:
         remote:
           origin: https://github.com/kubernetes-sigs/kubespray.git
-        branch: v2.9.0 # v2.10.0 is buggy https://github.com/kubernetes-sigs/kubespray/issues/4695
+        branch: v2.12.1 # v2.10.0 is buggy https://github.com/kubernetes-sigs/kubespray/issues/4695
   ansible:
     verbose: v
     mode: guest # or host to run ansible from the host instead of from the guest
     playbook_path: cluster.yml # relative within the kubespray repo or /cluster.yml is relative to the Vagrantfile when appending / at the beginning as convention
     # you can add any host_vars here with key-value to override inventory
-    version: 2.7.10 # kubespray is buggy on ansible 2.8: https://github.com/kubernetes-sigs/kubespray/issues/3985
+    version: 2.9.5
     host_vars:
       flannel_interface: "eth1"
       kube_network_plugin: flannel
@@ -40,9 +40,6 @@ teracy-dev-k8s:
       kube_service_addresses: 10.96.0.0/16
       kube_pods_subnet: 10.244.0.0/16
       metrics_server_enabled: true
-      # Directory where credentials will be stored
-      # moved out of inventory_dir to avoid host unreachable problem
-      credentials_dir: "/vagrant/workspace/credentials"
     # added @since v0.4.0
     extra_vars:
       ansible_become_pass: "vagrant"
